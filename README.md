@@ -25,6 +25,8 @@ F09 建议的严格格式转换位于 `gutcare_agents/f09_adapter.py`；当前�
 
 需要 Python 3.12+。PDF 文本提取需安装 `requirements.txt` 中的 pypdf；扫描版 PDF 还需安装 Poppler 的 `pdftoppm`（Docker 镜像已包含）。默认 `mock` 模式：不联网、不编造识图结果。
 
+与同伴进行 F08 联调时，直接使用 `run-f08-integration.ps1`，配置步骤见 `docs/F08同伴联调配置.md`。脚本隐藏输入服务令牌，并自动设置后端地址与 Agent 运行环境。
+
 ```powershell
 cd gutcare-agents
 python -m pip install -r requirements.txt
