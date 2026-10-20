@@ -13,7 +13,7 @@ PORT ?= 8100
 help:
 	@echo "make test     运行 109 个回归用例"
 	@echo "make eval     运行确定性评测（mock 模式）"
-	@echo "make samples  重新生成联调样例 docs/samples/"
+	@echo "make samples  重新生成联调样例 data/generated_samples/"
 	@echo "make serve    启动服务与控制台（mock 模式，端口 $(PORT)）"
 	@echo "make smoke    对已启动的服务做部署自检（PASS/FAIL）"
 	@echo "make demo-run 跑一遍 6 步演示序列并落盘记录"

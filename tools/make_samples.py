@@ -1,4 +1,4 @@
-"""生成联调样例（docs/samples/）。
+"""生成联调样例（data/generated_samples/，不纳入文档目录）。
 
 背景：联调条件（《开发边界》§8）要求提供“报告抽取、饮食识别、排便识别、综合分析和
 建议生成”的样例请求/响应，以及“成功、部分成功、无法识别、数据不足、超时、服务异常”
@@ -9,6 +9,8 @@
 - `--mode live` → 用真实模型生成，样例同时可用于质量对照（会消耗额度）。
 
 用法：
+    # 需要单独提供 testdata_v4；仓库不含该测试包
+    # PowerShell: $env:GCA_FIXTURE_ROOT = "<testdata_v4 所在目录>"
     python tools/make_samples.py                 # 结构样例
     python tools/make_samples.py --mode live     # 真实输出样例
 """
@@ -29,7 +31,7 @@ from gutcare_agents.orchestrator import Orchestrator, run_single
 from gutcare_agents.rules import RuleEngine, build_context, make_alert
 from gutcare_agents.store import Store
 
-OUT = ROOT / "docs" / "samples"
+OUT = ROOT / "data" / "generated_samples"
 
 SAMPLE_NOTE = {
     "mock": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，"

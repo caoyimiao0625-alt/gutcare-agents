@@ -1,8 +1,0 @@
-{
-  "type": "https://gutcare.local/problems/model_unavailable",
-  "title": "model_unavailable",
-  "status": 400,
-  "code": "model_unavailable",
-  "detail": "未配置 GCA_API_KEY，无法使用 live 模式；可改用 GCA_MODE=mock 或 replay",
-  "request_id": "8b21c4e0f7aa"
-}

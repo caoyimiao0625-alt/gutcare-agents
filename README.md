@@ -105,12 +105,11 @@ gutcare_agents/
 knowledge/          知识条目（6 条，全部标记 unverified_demo）+ 安全规则 JSON
 prompts/            7 份系统提示词（按 <agent>.<task>.v<版本>.md 命名，与代码分离）
 console/index.html  演示控制台（单页，无外部 CDN，离线可用）
-docs/               联调说明、OpenAPI、系统设计章节、第三方使用说明、测试报告、答辩问答、演示脚本与分镜、提交检查表、联调样例
-docs/samples/       真实代码路径生成的请求/响应样例（成功/降级/不足/错误）
+docs/               联调入口、OpenAPI、后端契约固定版本及比赛写作依据（见 docs/README.md）
 eval/run_eval.py    评测脚本（确定性指标）
 eval/ablation.py    消融实验（单模型 vs 多智能体）
-tests/              139 个回归用例（契约/编排/F08 接入与故障恢复/图像与 PDF 边界/提示词一致性）
-tools/make_samples.py 重新生成联调样例，避免文档漂移
+tests/              回归用例（契约/编排/F08 接入与故障恢复/图像与 PDF 边界/提示词一致性）
+tools/make_samples.py 按需生成联调结构样例到 data/generated_samples/（Git 忽略）
 tools/smoke_test.py    部署自检脚本（健康/鉴权/规则/分析/降级逐项 PASS/FAIL）
 tools/package_submission.py 打包提交件（git ls-files 为准，附清单与 sha256）
 tools/demo_run.py      一键演示序列（6 步，输出 data/demo/<时间戳>/ 与 transcript.md）
@@ -223,7 +222,7 @@ mock 模式下脚本写 `skipped`，不产出假数字。
 
 ## 8. 联调样例与异常演练
 
-`docs/samples/` 由 `tools/make_samples.py` 跑**真实代码路径**生成（不是手写文档，避免漂移）：
+单独提供 `testdata_v4` 测试包并设置 `GCA_FIXTURE_ROOT` 后，按需运行 `python tools/make_samples.py`，在 `data/generated_samples/` 生成通用接口结构样例；生成过程走实际代码路径，但默认使用 mock，不代表真实识图效果。交付仓库本身不含该测试包，直接运行会报缺少数据：
 
 | 样例 | 覆盖点 |
 |---|---|
@@ -288,8 +287,8 @@ docker compose up --build      # 默认 replay 模式，断网可演示；端口
 | 可运行程序与部署文档 | 启动命令、`requirements.txt`、`Dockerfile`、`docker-compose.yml`、`.env.example` |
 | 演示视频素材 | 演示控制台（阶段时间线/证据链/被拦截条目）+ `--fault` 异常演练 + `replay` 离线模式 |
 | 第三方模型/API/数据集使用说明 | `docs/第三方模型与数据使用说明.md` |
-| 测试与验证材料 | `tests/`、`eval/report.json`、`eval/ablation.json`、`docs/samples/` |
+| 测试与验证材料 | `tests/`、`eval/report.json`、`eval/ablation.json`、`docs/测试报告.md`（历史快照，提交前重测） |
 | 版本控制历史 | 本仓库 git 提交历史（从工程骨架开始提交，不做补造） |
 
-按赛题 6 项材料逐条对照的清单见 `docs/提交材料清单.md`。
+联调和比赛写作所需文件见 `docs/README.md`。正式提交前应以当时的代码与测试结果更新草稿，不能直接沿用历史数字。
 
