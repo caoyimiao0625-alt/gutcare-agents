@@ -18,15 +18,11 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location -Path $PSScriptRoot
 
-# 1) 找 Python（优先 PATH，其次 DSH 自带运行时）
+# 1) 找 Python
 $python = $null
 foreach ($candidate in @("python", "py")) {
   $cmd = Get-Command $candidate -ErrorAction SilentlyContinue
   if ($cmd) { $python = $cmd.Source; break }
-}
-if (-not $python) {
-  $bundled = "C:\Users\caoyimiao\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\python\python.exe"
-  if (Test-Path $bundled) { $python = $bundled }
 }
 if (-not $python) {
   Write-Host "未找到 Python 3.12+，请先安装或把 python 加入 PATH。" -ForegroundColor Red

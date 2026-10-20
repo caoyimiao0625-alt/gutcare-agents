@@ -1,0 +1,53 @@
+name: ci
+
+# 说明：仓库不包含 265MB 的测试包，因此依赖测试包的用例在 CI 中会 skip；
+# CI 负责把关“代码可编译、契约/校验/规则/接口/工具自身可用、能打包”，
+# 数据相关评测（Trend 90/90、安全规则召回等）在本地用完整测试包运行。
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 版本信息
+        run: python -V
+
+      - name: 安装 PDF 处理依赖
+        run: |
+          sudo apt-get update && sudo apt-get install -y poppler-utils
+          python -m pip install -r requirements.txt
+
+      - name: 语法编译检查（不依赖第三方包）
+        run: python -m compileall -q gutcare_agents tools eval tests
+
+      - name: 文档路径一致性
+        run: python tools/check_docs.py --verbose
+
+      - name: 回归测试（无测试包时自动跳过数据用例）
+        run: python -m unittest discover -s tests -v
+
+      - name: 启动服务并做部署自检
+        run: |
+          GCA_MODE=mock GCA_PORT=8100 python -m gutcare_agents serve &
+          sleep 3
+          python tools/smoke_test.py --no-fixtures --base-url http://127.0.0.1:8100
+
+      - name: 生成提交件（验证打包脚本可用）
+        run: python tools/package_submission.py --out dist/ci.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gutcare-agents-package
+          path: dist/ci.zip
+          retention-days: 7

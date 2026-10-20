@@ -1,0 +1,150 @@
+{
+  "generated_at": "2026-10-17T21:05:04+0800",
+  "mode": "live",
+  "model": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+  "fixture_root": "<external-testdata-v4>",
+  "trend": {
+    "cases": 90,
+    "exact_match": 90,
+    "exact_match_rate": 1.0,
+    "record_id_precision": 1.0,
+    "record_id_recall": 1.0,
+    "count_mismatch_cases": [],
+    "elapsed_s": 0.12
+  },
+  "safety": {
+    "positive_cases": 9,
+    "positive_hit": 9,
+    "positive_recall": 1.0,
+    "negative_cases": 1017,
+    "false_positive": 0,
+    "false_positive_rate": 0.0,
+    "sample_max_levels": [
+      2
+    ],
+    "note": "只覆盖“患者主动报告便血”这一类可结构化判定的阳性；其余规则靠人工用例测试"
+  },
+  "structure": {
+    "checked": 2,
+    "illegal_status": 0,
+    "observations_without_source": 0,
+    "pass": true
+  },
+  "advice_document": {
+    "status": "done",
+    "cases": 10,
+    "skipped_cases": [],
+    "mean_item_recall": 1.0,
+    "marker_detection_rate": 1.0,
+    "results": [
+      {
+        "sample_id": "ADVICE001",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE002",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE003",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE004",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE005",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE006",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE007",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE008",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE009",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      },
+      {
+        "sample_id": "ADVICE010",
+        "status": "ok",
+        "got_items": 4,
+        "expected_items": 4,
+        "item_recall": 1.0,
+        "marker_detected": true,
+        "inferred_forbidden": false,
+        "redactions": 0
+      }
+    ],
+    "note": "expected_items 是逐字原文；“条目召回”只说明抽取完整度，不等于医学理解正确；失败/未录制的样例不计入平均"
+  },
+  "not_measured": [
+    "报告字段抽取准确性（无字段级金标准，需人工核对）",
+    "食物识别准确性（来源配料不是可见食材金标准）",
+    "OCR 字符错误率（参考转写为 pending_manual_transcription）",
+    "排便图像分类（本轮未实现图像，测试包也没有真实粪便图像）",
+    "临床有效性（不参与评测，也不做任何声称）"
+  ]
+}
