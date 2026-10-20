@@ -1,0 +1,49 @@
+{
+  "task_id": "food_image_d43de26b71e2",
+  "agent": "diet",
+  "patient_id": "EXT-assets",
+  "status": "insufficient_data",
+  "agent_version": "0.2.0",
+  "prompt_version": "v1",
+  "prompt_sha256": "b0bb5ec51671f89f",
+  "model_id": "mock",
+  "input_record_ids": [],
+  "input_versions": {},
+  "input_snapshot_hash": "65c68e242f51a9e2dc266acfb15bce7a4ddd7bc20f1d408d522b74e59cdde670",
+  "observations": [],
+  "uncertainties": [
+    {
+      "code": "image_not_recognizable",
+      "message": "无法从这张图片可靠识别食物，请自行填写食物名称；记录仍可正常保存。",
+      "affects": []
+    },
+    {
+      "code": "mock_mode",
+      "message": "mock 模式未执行真实图像识别；请使用 live 或 replay 模式获得识别结果",
+      "affects": []
+    }
+  ],
+  "needs_confirmation": false,
+  "confirmation_fields": [],
+  "data": {
+    "foods": [],
+    "portion_note": ""
+  },
+  "findings": [],
+  "usage": {
+    "model": "mock",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "latency_ms": 0,
+    "cached": false,
+    "mode": "mock"
+  },
+  "error": null,
+  "started_at": "2026-10-17T17:38:53+08:00",
+  "ended_at": "2026-10-17T17:38:53+08:00",
+  "contract_version": "1.0",
+  "_sample_note": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，不得把本样例内容当作模型效果证据。",
+  "_sample_task": "meal_recognize",
+  "_sample_source": "FOOD001",
+  "_mode": "mock"
+}

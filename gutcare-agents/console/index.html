@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GutCare Agents · 演示控制台</title>
+<style>
+  :root{
+    --bg:#0f1720; --panel:#16202b; --panel2:#1c2836; --line:#27384a;
+    --text:#e8eef5; --muted:#93a4b8; --accent:#31c6a8; --warn:#f0b429; --danger:#ef5b5b;
+    --ok:#4cc38a; --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  header{display:flex;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+  header h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.3px}
+  header .sub{color:var(--muted);font-size:12px}
+  .badge{padding:3px 9px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--muted)}
+  .badge.live{color:var(--ok);border-color:#2b5c47}
+  .badge.mock{color:var(--warn);border-color:#5b4a20}
+  .badge.replay{color:#7fb3ff;border-color:#2b4670}
+  main{max-width:1180px;margin:0 auto;padding:20px 24px 64px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:13px;margin:0 0 12px;color:var(--muted);font-weight:600;letter-spacing:.6px;text-transform:uppercase}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  select,input,button{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  button{cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#062018;border-color:var(--accent);font-weight:600}
+  button.primary:disabled{opacity:.5;cursor:progress}
+  .stages{display:flex;flex-direction:column;gap:8px}
+  .stage{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+  .stage .name{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .stage .note{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pill{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-family:var(--mono)}
+  .pill.ok{color:var(--ok);border-color:#2b5c47}
+  .pill.partial{color:var(--warn);border-color:#5b4a20}
+  .pill.insufficient_data{color:#7fb3ff;border-color:#2b4670}
+  .pill.failed{color:var(--danger);border-color:#5b2b2b}
+  .pill.skipped{color:var(--muted)}
+  .obs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .obs li{border-left:3px solid var(--line);padding:2px 0 2px 12px}
+  .obs li.model{border-left-color:#7fb3ff}
+  .obs li.stat{border-left-color:var(--accent)}
+  .obs li.knowledge{border-left-color:#a77bff}
+  .obs .meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .advice{display:flex;flex-direction:column;gap:12px}
+  .advice .item{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--panel2)}
+  .advice .item h3{margin:0 0 6px;font-size:14px}
+  .advice .item p{margin:0 0 8px;color:#cfe0f0}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:6px;background:#0b131b;border:1px solid var(--line);color:#8fb7d9;margin:2px 4px 2px 0}
+  .risk{border:1px solid #5b2b2b;background:#2a1a1c;border-radius:10px;padding:12px;margin-bottom:10px}
+  .risk.l3{border-color:var(--danger)}
+  .risk.l2{border-color:var(--warn)}
+  .risk h3{margin:0 0 6px;font-size:14px;color:#ffd7d7}
+  .risk .lv{font-size:11px;color:var(--danger);font-family:var(--mono)}
+  .muted{color:var(--muted)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+  pre{background:#0b131b;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;max-height:420px;font-size:12px}
+  .finding{font-size:12px;padding:6px 8px;border-radius:6px;background:#221a10;border:1px solid #5b4a20;color:#f5dfa8;margin-bottom:6px}
+  .foot{margin-top:24px;color:var(--muted);font-size:12px}
+  .kpi{display:flex;gap:20px;flex-wrap:wrap}
+  .kpi div{font-size:12px;color:var(--muted)}
+  .kpi b{display:block;font-size:20px;color:var(--text);font-weight:600}
+  a{color:#7fb3ff}
+</style>
+</head>
+<body>
+<header>
+  <h1>GutCare Agents 演示控制台</h1>
+  <span class="sub">多智能体 · 确定性统计 · 证据校验 · 独立安全规则</span>
+  <span id="modeBadge" class="badge">加载中</span>
+  <span class="sub" style="margin-left:auto" id="metaLine"></span>
+</header>
+
+<main>
+  <div class="grid" style="margin-bottom:16px">
+    <div class="card">
+      <h2>运行综合分析</h2>
+      <div class="row">
+        <select id="patient"></select>
+        <select id="days">
+          <option value="7">最近 7 天</option>
+          <option value="14">最近 14 天</option>
+          <option value="30">最近 30 天</option>
+        </select>
+        <button id="run" class="primary">开始分析</button>
+        <label class="muted" style="font-size:12px"><input type="checkbox" id="force" /> 忽略缓存重跑</label>
+        <label class="muted" style="font-size:12px"><input type="checkbox" id="fault" /> 注入 advice 故障</label>
+      </div>
+      <p class="muted" style="font-size:12px;margin:10px 0 0">
+        分析链路：intake（安全前置）→ domain（Medical/Diet/Stool 并行）→ trend（确定性统计 + 模型叙述）→ advice（检索 + 证据）→ validate（删除无依据内容）
+      </p>
+    </div>
+    <div class="card">
+      <h2>独立安全规则（不调用模型）</h2>
+      <div class="row">
+        <button id="safetyNormal">普通记录</button>
+        <button id="safetyBlood">报告便血</button>
+        <button id="safetyBlack">黑色柏油样便</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:10px 0 0">同一路径在模型故障时仍会工作；命中结果会落库并去重。</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h2>任务状态 / 阶段时间线</h2>
+    <div id="summary" class="kpi" style="margin-bottom:12px"></div>
+    <div id="stages" class="stages"><p class="empty">尚未运行</p></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>观察（可核对）</h2>
+      <ul id="obs" class="obs"><li class="empty">尚未运行</li></ul>
+    </div>
+    <div class="card">
+      <h2>风险提示</h2>
+      <div id="risks"><p class="empty">无</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>建议（每条带依据编号）</h2>
+    <div id="advice" class="advice"><p class="empty">尚未运行</p></div>
+    <div id="validation" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>缺口与降级（为什么没有更多结论）</h2>
+    <div id="gaps"><p class="empty">尚未运行</p></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>原始返回</h2>
+    <pre id="raw">—</pre>
+  </div>
+
+  <p class="foot">
+    演示数据来自 GutCare 测试包的合成病例；医嘱文书为模拟文书；安全规则与知识条目均标记为未专业审核，仅用于软件测试。
+  </p>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { mode: "mock" };
+
+function pill(status){
+  const s = String(status || "skipped");
+  return `<span class="pill ${s}">${s}</span>`;
+}
+
+async function loadMeta(){
+  try{
+    const meta = await (await fetch("/v1/meta")).json();
+    state.mode = meta.mode;
+    const badge = $("modeBadge");
+    badge.textContent = `模式：${meta.mode}`;
+    badge.className = "badge " + meta.mode;
+    $("metaLine").textContent = `规则 ${meta.rules.version}（${meta.rules.review_status}） · 知识 ${meta.knowledge.documents} 条 · 模型 ${meta.config.vision_model}`;
+    const data = await (await fetch("/v1/demo/cases")).json();
+    const sel = $("patient");
+    sel.innerHTML = "";
+    for (const p of data.patients){
+      const opt = document.createElement("option");
+      opt.value = p.patient_id;
+      opt.textContent = `${p.patient_id} · ${p.diagnosis || "未确认诊断"} · ${p.age ?? "-"}岁`;
+      sel.appendChild(opt);
+    }
+  }catch(err){
+    $("modeBadge").textContent = "未连接服务";
+    console.error(err);
+  }
+}
+
+function renderStages(stages){
+  if (!stages || !stages.length){ $("stages").innerHTML = '<p class="empty">无阶段记录</p>'; return; }
+  $("stages").innerHTML = stages.map(s => `
+    <div class="stage">
+      <span class="name">${s.stage}</span>
+      <span class="note">${(s.note || "").replace(/</g,"&lt;")}</span>
+      ${pill(s.status)}
+    </div>`).join("");
+}
+
+function renderSummary(run){
+  const ov = (run.report && run.report.data_overview) || {};
+  const val = (run.report && run.report.validation) || {};
+  $("summary").innerHTML = `
+    <div><b>${run.status}</b>任务状态</div>
+    <div><b>${ov.by_kind ? Object.values(ov.by_kind).reduce((a,b)=>a+b,0) : 0}</b>有效记录</div>
+    <div><b>${ov.days_with_records ?? 0}</b>有记录天数</div>
+    <div><b>${ov.missing_days ?? 0}</b>缺失天数</div>
+    <div><b>${(run.report?.advice||[]).length}</b>建议条目</div>
+    <div><b>${(run.report?.risks||[]).length}</b>风险提示</div>
+    <div><b>${(val.findings||[]).length}</b>校验发现</div>`;
+}
+
+function renderObs(observations){
+  if (!observations || !observations.length){ $("obs").innerHTML = '<li class="empty">无观察</li>'; return; }
+  const cls = { derived_stat: "stat", model_inference: "model", knowledge: "knowledge" };
+  $("obs").innerHTML = observations.slice(0, 40).map(o => `
+    <li class="${cls[o.kind] || ""}">
+      <div>${o.statement.replace(/</g,"&lt;")}</div>
+      <div class="meta">${o.agent || ""} · ${o.obs_id} · ${o.kind} · 来源 ${(o.source_record_ids||[]).slice(0,3).join(", ") || "—"}</div>
+    </li>`).join("");
+}
+
+function renderRisks(risks){
+  if (!risks || !risks.length){ $("risks").innerHTML = '<p class="empty">无</p>'; return; }
+  $("risks").innerHTML = risks.map(r => `
+    <div class="risk l${r.severity_level}">
+      <div class="lv">L${r.severity_level} · ${r.rule_id} v${r.rule_version} · ${r.review_status || ""}</div>
+      <h3>${(r.title || r.message || "").replace(/</g,"&lt;")}</h3>
+      <p style="margin:6px 0;color:#ffd7d7">${(r.message||"").replace(/</g,"&lt;")}</p>
+      <p class="muted" style="margin:0;font-size:12px">${(r.recommended_action||"").replace(/</g,"&lt;")}</p>
+    </div>`).join("");
+}
+
+function renderAdvice(items){
+  if (!items || !items.length){ $("advice").innerHTML = '<p class="empty">本次没有通过校验的建议（数据不足或证据不成立时这是正确结果）</p>'; return; }
+  $("advice").innerHTML = items.map(a => `
+    <div class="item">
+      <h3>${(a.title||"").replace(/</g,"&lt;")}</h3>
+      <p>${(a.body||"").replace(/</g,"&lt;")}</p>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">${(a.applicability||"")} ${a.uncertainty ? "｜ 不确定性：" + a.uncertainty : ""}</div>
+      ${(a.evidence_obs_ids||[]).map(id => `<span class="chip">${id}</span>`).join("")}
+      ${(a.knowledge_ids||[]).map(id => `<span class="chip">${id}</span>`).join("")}
+    </div>`).join("");
+}
+
+function renderValidation(validation){
+  const findings = (validation && validation.findings) || [];
+  if (!findings.length){ $("validation").innerHTML = '<p class="muted" style="font-size:12px">校验：未发现不合规内容</p>'; return; }
+  $("validation").innerHTML = findings.map(f => `<div class="finding">${(f.severity||"").toUpperCase()} · ${f.code} · ${(f.message||"").replace(/</g,"&lt;")}</div>`).join("");
+}
+
+function renderGaps(run){
+  const report = run.report || {};
+  const st = report.advice_status || {};
+  const insufficient = report.insufficient || [];
+  const degraded = report.degraded || [];
+  const rows = [];
+  if (st.status){ rows.push(`<div class="stage"><span class="name">advice</span><span class="note">${(st.degraded_reason||"正常").replace(/</g,"&lt;")}</span>${pill(st.status)}</div>`); }
+  if (st.safety_override){ rows.push(`<div class="stage"><span class="name">safety</span><span class="note">存在紧急提示：已抑制普通饮食与活动建议</span><span class="pill partial">override</span></div>`); }
+  for (const d of degraded){ rows.push(`<div class="stage"><span class="name">degraded</span><span class="note">${d.replace(/</g,"&lt;")}</span><span class="pill partial">部分成功</span></div>`); }
+  for (const i of insufficient){ rows.push(`<div class="stage"><span class="name">gap</span><span class="note">${String(i).replace(/</g,"&lt;")}</span><span class="pill insufficient_data">缺口</span></div>`); }
+  $("gaps").innerHTML = rows.length ? `<div class="stages">${rows.join("")}</div>` : '<p class="muted" style="font-size:12px">无缺口：数据充足，结论均有依据</p>';
+}
+
+async function runAnalysis(){
+  const btn = $("run");
+  btn.disabled = true; btn.textContent = "分析中…";
+  try{
+    const res = await fetch("/v1/demo/analysis", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        patient_id: $("patient").value,
+        days: Number($("days").value),
+        force_refresh: $("force").checked,
+        fault: $("fault").checked ? "advice" : ""
+      })
+    });
+    const run = await res.json();
+    renderSummary(run);
+    renderStages(run.stages);
+    renderObs(run.report?.observations);
+    renderRisks(run.report?.risks);
+    renderAdvice(run.report?.advice);
+    renderValidation(run.report?.validation);
+    renderGaps(run);
+    $("raw").textContent = JSON.stringify(run.report, null, 2).slice(0, 20000);
+  }catch(err){
+    $("stages").innerHTML = `<p class="empty">运行失败：${err}</p>`;
+  }finally{
+    btn.disabled = false; btn.textContent = "开始分析";
+  }
+}
+
+async function runSafety(kind){
+  const now = new Date().toISOString();
+  const base = { patient_id: "SYN001", kind: "stool", occurred_at: now, status: "confirmed", version: 1 };
+  const records = [];
+  if (kind === "normal") records.push({...base, record_id: "demo-normal", data: {bristol_type: 4, blood_reported: false}});
+  if (kind === "blood") records.push({...base, record_id: "demo-blood", data: {bristol_type: 3, blood_reported: true}});
+  if (kind === "black") records.push({...base, record_id: "demo-black", data: {bristol_type: 6, note: "黑色柏油样大便"}});
+  const res = await fetch("/v1/safety/check", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({patient_id: "SYN001", records})
+  });
+  const data = await res.json();
+  renderRisks(data.alerts || []);
+  $("raw").textContent = JSON.stringify(data, null, 2);
+}
+
+$("run").addEventListener("click", runAnalysis);
+$("safetyNormal").addEventListener("click", () => runSafety("normal"));
+$("safetyBlood").addEventListener("click", () => runSafety("blood"));
+$("safetyBlack").addEventListener("click", () => runSafety("black"));
+loadMeta();
+</script>
+</body>
+</html>

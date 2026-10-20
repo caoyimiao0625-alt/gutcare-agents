@@ -1,0 +1,696 @@
+openapi: 3.1.0
+info:
+  title: GutCare Agent Integration API
+  version: 1.0.0
+  description: 业务后端与多智能体服务之间的双向内部契约。
+  license: {name: Proprietary, identifier: LicenseRef-Proprietary}
+servers:
+  - url: https://agent.internal.invalid/internal/v1
+security:
+  - serviceBearer: []
+paths:
+  /tasks:
+    post:
+      operationId: dispatchAgentTask
+      summary: 业务 Worker 派发已领取任务
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, maxLength: 128}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TaskDispatch'}
+      responses:
+        '202':
+          description: 智能体已幂等接收
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [task_id, accepted]
+                properties:
+                  task_id: {type: string, format: uuid}
+                  accepted: {const: true}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /agent/tasks/{task_id}/inputs:
+    get:
+      operationId: getTaskInputs
+      summary: 智能体从业务后端读取冻结输入（此路径由业务后端托管）
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - {$ref: '#/components/parameters/TaskId'}
+      responses:
+        '200':
+          description: 本任务最小必要输入
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TaskInputs'}
+        '404': {$ref: '#/components/responses/Problem'}
+  /agent/tasks/{task_id}/runs:
+    post:
+      operationId: appendAgentRun
+      summary: 提交单个 Agent 运行元数据
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - {$ref: '#/components/parameters/TaskId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AgentRun'}
+      responses:
+        '204': {description: 已幂等记录}
+        '409': {$ref: '#/components/responses/Problem'}
+  /agent/tasks/{task_id}/result:
+    post:
+      operationId: submitAgentResult
+      summary: 提交完整或部分成功结果
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - {$ref: '#/components/parameters/TaskId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AgentResult'}
+      responses:
+        '204': {description: 已校验并幂等落库}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /agent/tasks/{task_id}/fail:
+    post:
+      operationId: failAgentTask
+      summary: 提交最终失败
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - {$ref: '#/components/parameters/TaskId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AgentFailure'}
+      responses:
+        '204': {description: 已幂等记录}
+        '409': {$ref: '#/components/responses/Problem'}
+  /agent/analysis-tasks/claim:
+    post:
+      operationId: claimF08AnalysisTask
+      summary: Worker 原子领取一个待处理或租约过期任务
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      responses:
+        '200':
+          description: 领取的任务；无可用任务时 task 为 null
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [task]
+                properties:
+                  task:
+                    oneOf:
+                      - type: object
+                        required: [task_id, analysis_type, attempt]
+                        properties:
+                          task_id: {type: string, format: uuid}
+                          analysis_type: {type: string, enum: [comprehensive_health_analysis, periodic_summary]}
+                          attempt: {type: integer, minimum: 1}
+                      - type: 'null'
+        '401': {$ref: '#/components/responses/Problem'}
+  /agent/analysis-tasks/{task_id}/inputs:
+    get:
+      operationId: getF08TaskSnapshot
+      summary: 读取本任务的最小结构化冻结快照
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters: [{$ref: '#/components/parameters/TaskId'}]
+      responses:
+        '200': {description: 当前授权下可读的冻结快照, content: {application/json: {schema: {$ref: '#/components/schemas/TaskInputs'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+  /agent/analysis-tasks/{task_id}/result:
+    post:
+      operationId: submitF08TaskResult
+      summary: 提交结构化结果和受限证据引用
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters: [{$ref: '#/components/parameters/TaskId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AgentResult'}}}}
+      responses:
+        '204': {description: 结果已校验并写入任务}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /agent/analysis-tasks/{task_id}/fail:
+    post:
+      operationId: failF08Task
+      summary: 提交任务失败安全码
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters: [{$ref: '#/components/parameters/TaskId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnalysisFailure'}}}}
+      responses:
+        '204': {description: 失败已记录}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /agent/medical-parse-requests/{request_id}/candidates:
+    post:
+      operationId: submitMedicalFieldCandidates
+      summary: 为单个冻结医疗文档提交解析 outcome 与严格字段候选
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MedicalCandidateSubmission'}
+            examples:
+              insufficientQuality:
+                value: {callback_id: 00000000-0000-0000-0000-000000000002, parse_outcome: insufficient_quality, reason_code: low_quality_scan, candidates: []}
+              noSupportedFacts:
+                value: {callback_id: 00000000-0000-0000-0000-000000000003, parse_outcome: no_supported_facts, reason_code: no_supported_fields, candidates: []}
+      responses:
+        '204': {description: outcome 与候选已幂等持久化；extracted 等待患者逐字段决定}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /agent/medical-parse-requests/{request_id}/inputs:
+    get:
+      operationId: getMedicalParseRequestInputs
+      summary: 读取当前任务冻结的单份医疗文档输入
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: 仅限当前文件版本的任务输入；源不可用、授权撤回或任务终态返回 404
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MedicalParseInputs'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+  /agent/medical-parse-requests/{request_id}/fail:
+    post:
+      operationId: failMedicalParseRequest
+      summary: 提交医疗文档解析任务的最终安全失败码
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MedicalParseFailure'}
+      responses:
+        '204': {description: 失败状态已幂等记录}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /agent/advice/{task_id}/callback:
+    post:
+      operationId: submitAdviceCallback
+      summary: 提交独立 F09 advice；只接受 succeeded/partial F08 任务与快照内证据
+      servers:
+        - url: https://business.internal.invalid/internal/v1
+      parameters: [{$ref: '#/components/parameters/TaskId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AdviceCallback'}}}}
+      responses:
+        '204': {description: 建议和证据已同事务持久化，或同摘要幂等重放}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409':
+          description: 任务不可用或快照无明确确诊时提交疾病专属建议。ADVICE_NOT_APPLICABLE 是永久性业务拒绝；即使为 HTTP 409，Agent 也不得自动重试该 callback。
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+              examples:
+                adviceNotApplicable:
+                  value:
+                    type: https://gutcare.invalid/problems/advice_not_applicable
+                    title: Condition-specific advice is not applicable
+                    status: 409
+                    detail: Explicit confirmed diagnosis is absent from the frozen task snapshot; do not retry this callback.
+                    code: ADVICE_NOT_APPLICABLE
+                    request_id: 00000000-0000-0000-0000-000000000000
+        '422': {$ref: '#/components/responses/Problem'}
+  /record-image-recognition/requests:
+    post:
+      operationId: dispatchRecordImageRecognition
+      summary: 业务 Worker 派发已领取的记录图片识别请求
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, minLength: 8, maxLength: 128}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecordImageRecognitionDispatch'}}}}
+      responses: {'202': {description: Agent 已幂等接收}, '401': {$ref: '#/components/responses/Problem'}, '409': {$ref: '#/components/responses/Problem'}, '422': {$ref: '#/components/responses/Problem'}, '503': {$ref: '#/components/responses/Problem'}}
+  /agent/record-image-recognition/claim:
+    post:
+      operationId: claimRecordImageRecognitionRequest
+      summary: 业务 Worker 原子领取一个 pending 或租约过期请求；Agent 不得调用
+      servers: [{url: https://business.internal.invalid/internal/v1}]
+      responses:
+        '200':
+          description: 请求或 null；领取采用 SKIP LOCKED 并发语义，lease 五分钟
+          content:
+            application/json:
+              schema: {type: object, required: [request], properties: {request: {oneOf: [{$ref: '#/components/schemas/RecordImageRecognitionDispatch'}, {type: 'null'}]}}}
+        '401': {$ref: '#/components/responses/Problem'}
+  /agent/record-image-recognition/requests/{request_id}/input:
+    get:
+      operationId: getRecordImageRecognitionInput
+      summary: 业务后端托管；读取绑定 request 的最小结构化字段与短时单图能力
+      servers: [{url: https://business.internal.invalid/internal/v1}]
+      parameters: [{name: request_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses: {'200': {description: 当前授权、来源版本与任务状态校验通过后的冻结输入, content: {application/json: {schema: {$ref: '#/components/schemas/RecordImageRecognitionInput'}}}}, '401': {$ref: '#/components/responses/Problem'}, '404': {$ref: '#/components/responses/Problem'}, '409': {$ref: '#/components/responses/Problem'}}
+  /agent/record-image-recognition/images/{capability}:
+    get:
+      operationId: readRecordImageRecognitionImage
+      summary: 业务后端托管的一次性 task+attachment 短时图像能力；不可重放或跨任务访问
+      servers: [{url: https://business.internal.invalid/internal/v1}]
+      parameters: [{name: capability, in: path, required: true, schema: {type: string, minLength: 32, maxLength: 256}}]
+      responses: {'200': {description: 私有 JPEG/PNG 流；gateway 必须再次核验 request、附件、版本、授权与状态, content: {image/jpeg: {schema: {type: string, format: binary}}, image/png: {schema: {type: string, format: binary}}}}, '401': {$ref: '#/components/responses/Problem'}, '404': {$ref: '#/components/responses/Problem'}, '409': {$ref: '#/components/responses/Problem'}}
+  /agent/record-image-recognition/requests/{request_id}/candidates:
+    post:
+      operationId: submitRecordImageRecognitionCandidates
+      summary: 提交受限图像候选；只保存候选，不改患者事实/风险/F08
+      servers: [{url: https://business.internal.invalid/internal/v1}]
+      parameters: [{name: request_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecordImageCandidateSubmission'}}}}
+      responses: {'204': {description: 候选已校验并幂等保存}, '401': {$ref: '#/components/responses/Problem'}, '404': {$ref: '#/components/responses/Problem'}, '409': {$ref: '#/components/responses/Problem'}, '422': {$ref: '#/components/responses/Problem'}}
+  /agent/record-image-recognition/requests/{request_id}/fail:
+    post:
+      operationId: failRecordImageRecognition
+      summary: 提交任务级受控最终失败码
+      servers: [{url: https://business.internal.invalid/internal/v1}]
+      parameters: [{name: request_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecordImageRecognitionFailure'}}}}
+      responses: {'204': {description: 失败已幂等记录}, '401': {$ref: '#/components/responses/Problem'}, '404': {$ref: '#/components/responses/Problem'}, '409': {$ref: '#/components/responses/Problem'}, '422': {$ref: '#/components/responses/Problem'}}
+components:
+  securitySchemes:
+    serviceBearer: {type: http, scheme: bearer}
+  parameters:
+    TaskId:
+      name: task_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+  responses:
+    Problem:
+      description: RFC 9457 Problem Details
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    RecordImageRecognitionDispatch:
+      type: object
+      additionalProperties: false
+      required: [request_id, recognition_type, attempt, retry_of_request_id, schema_version]
+      properties:
+        request_id: {type: string, format: uuid}
+        recognition_type: {type: string, enum: [diet_image_recognition, stool_image_recognition]}
+        attempt: {type: integer, minimum: 1}
+        retry_of_request_id: {type: [string, 'null'], format: uuid, description: Parent request for an explicit patient retry; null for initial attempts.}
+        schema_version: {const: '1.0'}
+      example: {request_id: '019a0000-0000-7000-8000-000000000021', recognition_type: diet_image_recognition, attempt: 1, retry_of_request_id: null, schema_version: '1.0'}
+    RecordImageRecognitionInput:
+      type: object
+      additionalProperties: false
+      required: [request_id, recognition_type, record_id, record_version, image_set_version, attempt, retry_of_request_id, schema_version, attachments]
+      properties:
+        request_id: {type: string, format: uuid}
+        recognition_type: {type: string, enum: [diet_image_recognition, stool_image_recognition]}
+        record_id: {type: string, format: uuid}
+        record_version: {type: integer, minimum: 1}
+        image_set_version: {type: integer, minimum: 1}
+        attempt: {type: integer, minimum: 1}
+        retry_of_request_id: {type: [string, 'null'], format: uuid}
+        schema_version: {const: '1.0'}
+        context: {type: object, additionalProperties: false, properties: {occurred_at: {type: string, format: date-time}, meal_type: {type: [string, 'null']}, bristol_type: {type: [integer, 'null'], minimum: 1, maximum: 7}}}
+        attachments:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: {type: object, additionalProperties: false, required: [attachment_id, file_version, content_type, image_capability], properties: {attachment_id: {type: string, format: uuid}, file_version: {type: integer, minimum: 1}, content_type: {type: string, enum: [image/jpeg, image/png]}, image_capability: {type: string, minLength: 32, maxLength: 256, description: Request and attachment scoped, one-time, short-lived opaque capability; do not log or retain}}}
+    RecordImageCandidateSubmission:
+      type: object
+      additionalProperties: false
+      required: [callback_id, record_version, image_set_version, schema_version, images]
+      properties:
+        callback_id: {type: string, format: uuid}
+        record_version: {type: integer, minimum: 1}
+        image_set_version: {type: integer, minimum: 1}
+        schema_version: {const: '1.0'}
+        images:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: {type: object, additionalProperties: false, required: [attachment_id, image_quality, candidates], properties: {attachment_id: {type: string, format: uuid}, image_quality: {type: string, enum: [usable, unusable, uncertain]}, reason_code: {type: [string, 'null'], enum: [low_image_quality, unsupported_image, no_visible_food, no_reliable_stool_type, null]}, candidates: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/RecordImageRecognitionCandidate'}}}}
+      example: {callback_id: '019a0000-0000-7000-8000-000000000041', record_version: 3, image_set_version: 2, schema_version: '1.0', images: [{attachment_id: '019a0000-0000-7000-8000-000000000022', image_quality: usable, reason_code: null, candidates: [{candidate_id: '019a0000-0000-7000-8000-000000000031', attachment_id: '019a0000-0000-7000-8000-000000000022', candidate_group_key: '019a0000-0000-7000-8000-000000000071', candidate_type: food_name, value: 米饭, confidence_band: medium, uncertainty_code: mixed_food, image_region: [0.1, 0.2, 0.8, 0.9]}, {candidate_id: '019a0000-0000-7000-8000-000000000032', attachment_id: '019a0000-0000-7000-8000-000000000022', candidate_group_key: '019a0000-0000-7000-8000-000000000071', candidate_type: food_category, value: grain_staple, confidence_band: medium, uncertainty_code: mixed_food, image_region: [0.1, 0.2, 0.8, 0.9]}, {candidate_id: '019a0000-0000-7000-8000-000000000035', attachment_id: '019a0000-0000-7000-8000-000000000022', candidate_group_key: '019a0000-0000-7000-8000-000000000072', candidate_type: food_name, value: 西红柿, confidence_band: low, uncertainty_code: partially_occluded}]}, {attachment_id: '019a0000-0000-7000-8000-000000000023', image_quality: usable, reason_code: null, candidates: [{candidate_id: '019a0000-0000-7000-8000-000000000033', attachment_id: '019a0000-0000-7000-8000-000000000023', candidate_group_key: '019a0000-0000-7000-8000-000000000071', candidate_type: portion_description, value: 一小碗, confidence_band: low, uncertainty_code: partially_occluded}]}]}
+    RecordImageRecognitionCandidate:
+      oneOf: [{$ref: '#/components/schemas/DietRecordImageCandidate'}, {$ref: '#/components/schemas/StoolRecordImageCandidate'}]
+    DietRecordImageCandidate:
+      type: object
+      additionalProperties: false
+      required: [candidate_id, attachment_id, candidate_group_key, candidate_type, value, confidence_band, uncertainty_code]
+      properties:
+        candidate_id: {type: string, format: uuid}
+        attachment_id: {type: string, format: uuid}
+        candidate_group_key: {type: string, format: uuid, description: Opaque and scoped to this request; reuse only when explicitly grouping fields for one food item across attachments. Never infer groups from content or merge across requests.}
+        candidate_type: {type: string, enum: [food_name, food_category, portion_description]}
+        value: {type: string, minLength: 1, maxLength: 160, description: food_category must use the controlled category codes.}
+        confidence_band: {type: string, enum: [low, medium, high]}
+        uncertainty_code: {type: string, enum: [partially_occluded, mixed_food, low_light, ambiguous_shape, image_quality, other]}
+        image_region: {type: [array, 'null'], minItems: 4, maxItems: 4, items: {type: number, minimum: 0, maximum: 1}}
+      allOf:
+        - if: {properties: {candidate_type: {const: food_category}}, required: [candidate_type]}
+          then: {properties: {value: {type: string, enum: [grain_staple, vegetable, fruit, meat, seafood, dairy, egg, legume, snack, beverage, mixed_dish, other]}}}
+      example: {candidate_id: '019a0000-0000-7000-8000-000000000031', attachment_id: '019a0000-0000-7000-8000-000000000022', candidate_group_key: '019a0000-0000-7000-8000-000000000071', candidate_type: food_name, value: 米饭, confidence_band: medium, uncertainty_code: mixed_food, image_region: [0.1, 0.2, 0.8, 0.9]}
+    StoolRecordImageCandidate:
+      type: object
+      additionalProperties: false
+      required: [candidate_id, attachment_id, candidate_type, value, confidence_band, uncertainty_code]
+      properties:
+        candidate_id: {type: string, format: uuid}
+        attachment_id: {type: string, format: uuid}
+        candidate_type: {const: bristol_type}
+        value: {type: integer, minimum: 1, maximum: 7}
+        confidence_band: {type: string, enum: [low, medium, high]}
+        uncertainty_code: {type: string, enum: [partially_occluded, mixed_food, low_light, ambiguous_shape, image_quality, other]}
+        image_region: {type: [array, 'null'], minItems: 4, maxItems: 4, items: {type: number, minimum: 0, maximum: 1}}
+      example: {candidate_id: '019a0000-0000-7000-8000-000000000034', attachment_id: '019a0000-0000-7000-8000-000000000024', candidate_type: bristol_type, value: 4, confidence_band: medium, uncertainty_code: ambiguous_shape}
+    RecordImageRecognitionFailure:
+      type: object
+      additionalProperties: false
+      required: [callback_id, error_code]
+      properties:
+        callback_id: {type: string, format: uuid}
+        error_code: {type: string, enum: [agent_unavailable, timeout, invalid_image, internal_processing_error]}
+    AnalysisFailure:
+      type: object
+      additionalProperties: false
+      required: [callback_id, error_code]
+      properties:
+        callback_id: {type: string, format: uuid}
+        error_code: {type: string, pattern: '^[A-Z0-9_]+$', minLength: 1, maxLength: 64}
+    MedicalParseFailure:
+      type: object
+      additionalProperties: false
+      required: [callback_id, error_code]
+      properties:
+        callback_id: {type: string, format: uuid}
+        error_code: {type: string, pattern: '^[A-Za-z0-9_]+$', minLength: 1, maxLength: 64}
+    MedicalParseInputs:
+      type: object
+      additionalProperties: false
+      required: [request_id, document_id, document_version, document_type, document_date, content_type, file_name, content_base64]
+      properties:
+        request_id: {type: string, format: uuid}
+        document_id: {type: string, format: uuid}
+        document_version: {type: integer, minimum: 1}
+        document_type: {type: string}
+        document_date: {type: [string, 'null'], format: date}
+        content_type: {type: string}
+        file_name: {type: string}
+        content_base64: {type: string, contentEncoding: base64}
+    TaskDispatch:
+      type: object
+      additionalProperties: false
+      required: [task_id, analysis_type, schema_version]
+      properties:
+        task_id: {type: string, format: uuid}
+        analysis_type: {type: string, enum: [comprehensive_health_analysis, periodic_summary]}
+        schema_version: {const: '1.0'}
+        deadline_at: {type: [string, 'null'], format: date-time}
+    TaskInputs:
+      additionalProperties: false
+      type: object
+      required: [task_id, patient_id, analysis_type, consent_scope, consent_scope_snapshot, records, mood_records, missing_data, schema_version, snapshot_hash]
+      properties:
+        task_id: {type: string, format: uuid}
+        patient_id: {type: string, format: uuid, description: 仅限本任务的受控内部标识}
+        analysis_type: {type: string, enum: [comprehensive_health_analysis, periodic_summary]}
+        time_range:
+          type: [object, 'null']
+          properties:
+            from: {type: string, format: date-time}
+            to: {type: string, format: date-time}
+        consent_scope: {type: array, items: {type: string}, uniqueItems: true, description: Mood records may appear only when health_data_processing, mood_data_processing, mood_ai_sharing, and third_party_ai were all valid at snapshot creation.}
+        consent_scope_snapshot:
+          type: object
+          additionalProperties: false
+          required: [health_data_processing, mood_data_processing, mood_ai_sharing, third_party_ai]
+          properties:
+            health_data_processing: {type: boolean}
+            mood_data_processing: {type: boolean}
+            mood_ai_sharing: {type: boolean}
+            third_party_ai: {type: boolean}
+        records:
+          type: array
+          items: {$ref: '#/components/schemas/InputRecord'}
+          description: Non-mood frozen inputs. Mood entries are transmitted separately in mood_records.
+        mood_records:
+          type: array
+          items:
+            allOf:
+              - {$ref: '#/components/schemas/InputRecord'}
+              - type: object
+                properties: {record_type: {const: mood_record}}
+        missing_data: {type: array, items: {type: string}}
+        schema_version: {const: '1.0'}
+        snapshot_hash: {type: string, pattern: '^[a-f0-9]{64}$'}
+    InputRecord:
+      additionalProperties: false
+      type: object
+      required: [record_type, record_id, record_version, confirmation_status, locator, payload]
+      properties:
+        record_type: {type: string, enum: [confirmed_medical_fact, medical_fact_conflict, diet_record, stool_record, symptom_record, mood_record, medication_plan, medication_checkin, risk_alert], description: medical_fact_conflict is an unresolved review-only envelope; mood_record is included only when health_data_processing, mood_data_processing, mood_ai_sharing, and third_party_ai are active and contains only mood_level, controlled emotion_tags and occurred_at, never note.}
+        record_id: {type: string, format: uuid}
+        record_version: {type: integer, minimum: 1}
+        occurred_at: {type: [string, 'null'], format: date-time}
+        confirmation_status: {type: string, enum: [confirmed, unresolved]}
+        locator: {type: string, minLength: 1, maxLength: 160}
+        payload: {type: object, description: For medical_fact_conflict, contains only member confirmed test_item/test_result values and source identifiers/versions. It is not a single fact and must not support automated preference or diagnosis. For mood_record, payload is MoodSnapshotPayload and must never contain note or free text.}
+      allOf:
+        - if:
+            properties: {record_type: {const: mood_record}}
+            required: [record_type]
+          then:
+            properties:
+              confirmation_status: {const: confirmed}
+              payload: {$ref: '#/components/schemas/MoodSnapshotPayload'}
+            required: [confirmation_status, payload]
+    MoodSnapshotPayload:
+      type: object
+      additionalProperties: false
+      required: [occurred_at, mood_level, emotion_tags]
+      properties:
+        occurred_at: {type: string, format: date-time}
+        mood_level: {type: integer, minimum: 1, maximum: 5, description: Patient self-reported non-clinical rating.}
+        emotion_tags:
+          type: array
+          maxItems: 5
+          uniqueItems: true
+          items: {type: string, enum: [calm, content, joyful, sad, anxious, irritable, overwhelmed, tired, other]}
+    AgentRun:
+      type: object
+      required: [callback_id, agent_name, run_sequence, status, model_name, model_version, prompt_version]
+      properties:
+        callback_id: {type: string, format: uuid}
+        agent_name: {type: string, maxLength: 64}
+        run_sequence: {type: integer, minimum: 1}
+        status: {type: string, enum: [running, succeeded, partial, failed, skipped]}
+        model_provider: {type: [string, 'null']}
+        model_name: {type: string}
+        model_version: {type: string}
+        prompt_version: {type: string}
+        started_at: {type: [string, 'null'], format: date-time}
+        finished_at: {type: [string, 'null'], format: date-time}
+        error_code: {type: [string, 'null']}
+    AgentResult:
+      type: object
+      additionalProperties: false
+      required: [callback_id, status, schema_version, summary, observations, evidence, uncertainties, missing_data]
+      properties:
+        callback_id: {type: string, format: uuid}
+        status: {type: string, enum: [succeeded, partial, needs_input]}
+        schema_version: {const: '1.0'}
+        summary: {type: string, maxLength: 1200}
+        observations: {type: array, maxItems: 30, items: {type: string, maxLength: 500}}
+        evidence:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            required: [source_type, source_id, source_version, locator]
+            properties:
+              source_type: {type: string, enum: [confirmed_medical_fact, diet_record, stool_record, symptom_record, mood_record, medication_plan, medication_checkin, risk_alert]}
+              source_id: {type: string, format: uuid}
+              source_version: {type: integer, minimum: 1}
+              locator: {type: string, maxLength: 160}
+        uncertainties: {type: array, maxItems: 30, items: {type: string, maxLength: 500}}
+        missing_data: {type: array, maxItems: 30, items: {type: string, maxLength: 120}}
+    AdviceCallback:
+      type: object
+      additionalProperties: false
+      required: [callback_id, schema_version, advice]
+      properties:
+        callback_id: {type: string, format: uuid}
+        schema_version: {const: '1.0'}
+        advice: {type: array, maxItems: 20, items: {$ref: '#/components/schemas/AdviceItem'}}
+    AdviceItem:
+      type: object
+      additionalProperties: false
+      required: [category, priority, title, body, uncertainty, applicability, safety_boundary, version, evidence]
+      properties:
+        category: {type: string, enum: [diet, lifestyle, record_management, medication_adherence, care_consultation]}
+        priority: {type: string, enum: [routine, important]}
+        title: {type: string, minLength: 1, maxLength: 160}
+        body: {type: string, minLength: 1, maxLength: 3000}
+        uncertainty: {type: object, additionalProperties: false, required: [level, reasons], properties: {level: {type: string, enum: [low, moderate, high]}, reasons: {type: array, maxItems: 10, items: {type: string, maxLength: 240}}}}
+        applicability: {type: object, additionalProperties: false, required: [scope, limitations], properties: {scope: {type: string, enum: [general, condition_specific]}, limitations: {type: array, maxItems: 10, items: {type: string, maxLength: 240}}}}
+        safety_boundary: {type: object, additionalProperties: false, required: [not_diagnosis, not_prescription, risk_alert_priority], properties: {not_diagnosis: {const: true}, not_prescription: {const: true}, risk_alert_priority: {const: true}}}
+        version: {type: string, minLength: 1, maxLength: 32}
+        evidence: {type: array, minItems: 1, maxItems: 30, items: {oneOf: [{$ref: '#/components/schemas/AdvicePatientEvidence'}, {$ref: '#/components/schemas/AdviceKnowledgeEvidence'}]}}
+    AdvicePatientEvidence:
+      type: object
+      additionalProperties: false
+      required: [evidence_type, source_type, source_id, source_version, locator]
+      properties:
+        evidence_type: {const: patient}
+        source_type: {type: string, enum: [confirmed_medical_fact, diet_record, stool_record, symptom_record, mood_record, medication_plan, medication_checkin, risk_alert]}
+        source_id: {type: string, format: uuid}
+        source_version: {type: integer, minimum: 1}
+        locator: {type: string, minLength: 1, maxLength: 160}
+    AdviceKnowledgeEvidence:
+      type: object
+      additionalProperties: false
+      required: [evidence_type, knowledge_ref, knowledge_version, knowledge_title, knowledge_publisher]
+      properties:
+        evidence_type: {const: knowledge}
+        knowledge_ref: {type: string, minLength: 1, maxLength: 160}
+        knowledge_version: {type: string, minLength: 1, maxLength: 64}
+        knowledge_title: {type: string, minLength: 1, maxLength: 240}
+        knowledge_publisher: {type: string, minLength: 1, maxLength: 160}
+        citation_url: {type: [string, 'null'], format: uri, pattern: '^https://'}
+    Observation:
+      type: object
+      required: [observation_id, text, source_reference_ids]
+      properties:
+        observation_id: {type: string, format: uuid}
+        text: {type: string, maxLength: 2000}
+        source_reference_ids: {type: array, minItems: 1, items: {type: string, format: uuid}}
+        confidence: {type: [number, 'null'], minimum: 0, maximum: 1}
+    SourceReference:
+      type: object
+      required: [reference_id, source_kind, source_id, evidence_role]
+      properties:
+        reference_id: {type: string, format: uuid}
+        source_kind: {type: string, enum: [patient_record, medical_document, knowledge_chunk]}
+        source_id: {type: string, format: uuid}
+        source_version: {type: [integer, 'null'], minimum: 1}
+        evidence_role: {type: string, enum: [supports, context, contradicts, limitation]}
+        excerpt: {type: [string, 'null'], maxLength: 1000}
+        source_locator:
+          type: [object, 'null']
+          properties:
+            page: {type: integer, minimum: 1}
+            section: {type: string, maxLength: 200}
+            char_start: {type: integer, minimum: 0}
+            char_end: {type: integer, minimum: 0}
+            bbox:
+              type: array
+              minItems: 4
+              maxItems: 4
+              items: {type: number, minimum: 0, maximum: 1}
+    Advice:
+      type: object
+      required: [title, content, source_reference_ids]
+      properties:
+        title: {type: string, maxLength: 160}
+        content: {type: string, maxLength: 4000}
+        applicability: {type: [string, 'null']}
+        uncertainty_text: {type: [string, 'null']}
+        source_reference_ids: {type: array, minItems: 1, items: {type: string, format: uuid}}
+    AgentFailure:
+      type: object
+      additionalProperties: false
+      required: [callback_id, task_id, error_code, retryable, safe_message]
+      properties:
+        callback_id: {type: string, format: uuid}
+        task_id: {type: string, format: uuid}
+        error_code: {type: string, maxLength: 64}
+        retryable: {type: boolean}
+        safe_message: {type: string, maxLength: 500}
+    MedicalCandidateSubmission:
+      type: object
+      additionalProperties: false
+      required: [callback_id, candidates]
+      properties:
+        callback_id: {type: string, format: uuid}
+        parse_outcome:
+          type: [string, 'null']
+          enum: [extracted, no_supported_facts, insufficient_quality, null]
+          description: Optional for legacy non-empty callbacks; empty candidate results must specify one of the two zero-candidate outcomes.
+        reason_code:
+          type: [string, 'null']
+          enum: [no_supported_fields, unsupported_content, low_quality_scan, illegible_content, incomplete_document, null]
+          description: Controlled reason only; no free-text explanation or patient content.
+        candidates:
+          type: array
+          maxItems: 200
+          items: {$ref: '#/components/schemas/MedicalFieldCandidate'}
+    MedicalFieldCandidate:
+      type: object
+      additionalProperties: false
+      required: [field_code, value_type, value, unit, confidence, uncertainty, source_locator, excerpt]
+      properties:
+        field_code: {type: string, enum: [diagnosis, document_date, recommendation, test_item, test_result, medication_name, medication_dose, medication_frequency, medication_duration, allergy]}
+        value_type: {type: string, enum: [diagnosis, date, string, object]}
+        value: {}
+        unit: {type: [string, 'null'], maxLength: 32}
+        confidence: {type: [number, 'null'], minimum: 0, maximum: 1}
+        uncertainty: {type: [string, 'null'], maxLength: 500}
+        source_locator:
+          type: object
+          minProperties: 1
+          additionalProperties: false
+          properties:
+            page: {type: integer, minimum: 1}
+            char_start: {type: integer, minimum: 0}
+            char_end: {type: integer, minimum: 1}
+            bbox: {type: array, minItems: 4, maxItems: 4, items: {type: number, minimum: 0, maximum: 1}}
+        excerpt: {type: string, minLength: 1, maxLength: 500}
+    Problem:
+      type: object
+      required: [type, title, status, code, request_id]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        code: {type: string}
+        request_id: {type: string, format: uuid}

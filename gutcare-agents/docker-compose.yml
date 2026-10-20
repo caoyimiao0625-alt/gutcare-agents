@@ -1,0 +1,19 @@
+services:
+  agents:
+    build: .
+    image: gutcare-agents:0.2.0
+    ports:
+      - "8100:8100"
+    environment:
+      # 默认 replay：断网也能演示，结果可复现；需要真实调用改为 live 并注入密钥
+      GCA_MODE: "replay"
+      GCA_BASE_URL: "https://api.deepseek.com"
+      GCA_VISION_MODEL: "deepseek-chat"
+      GCA_API_KEY: ""
+      GCA_INTERNAL_TOKEN: "change-me-in-integration"
+      # 仅演示接口（/v1/demo/*）需要测试包；生产部署可去掉此挂载
+      GCA_FIXTURE_ROOT: "/fixtures/testdata_v4"
+    volumes:
+      - ./data:/app/data
+      - ../testdata_v4:/fixtures/testdata_v4:ro
+    restart: unless-stopped

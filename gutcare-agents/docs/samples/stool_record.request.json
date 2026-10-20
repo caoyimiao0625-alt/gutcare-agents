@@ -1,0 +1,43 @@
+{
+  "task_id": "stool_408bacc7a372",
+  "kind": "stool_record",
+  "patient_id": "SYN001",
+  "time_range": {
+    "start": null,
+    "end": null
+  },
+  "records": [
+    {
+      "record_id": "INPUT-STOOL001",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 2,
+        "blood_reported": false
+      }
+    }
+  ],
+  "profile": {
+    "patient_id": "SYN001",
+    "display_name": "模拟用户001",
+    "age": 21,
+    "diagnosis_status": "confirmed",
+    "diagnosis": "IBS",
+    "profile_version": 1,
+    "restrictions": []
+  },
+  "files": [],
+  "confirmed_results": [],
+  "safety_alerts": [],
+  "query": "",
+  "options": {},
+  "idempotency_key": "",
+  "received_at": "2026-10-17T17:38:53+08:00",
+  "snapshot_hash": "e7a5b8791c8e796dc69a1479e5b6b31cfc65b066d1fd024ea9bc7154ef5c03a3"
+}

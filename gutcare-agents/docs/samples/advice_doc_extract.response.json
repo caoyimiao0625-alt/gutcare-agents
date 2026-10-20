@@ -1,0 +1,59 @@
+{
+  "task_id": "advice_document_28997bbee980",
+  "agent": "medical",
+  "patient_id": "EXT-assets",
+  "status": "ok",
+  "agent_version": "0.2.0",
+  "prompt_version": "v1",
+  "prompt_sha256": "954be241bff1e5ee",
+  "model_id": "mock",
+  "input_record_ids": [],
+  "input_versions": {},
+  "input_snapshot_hash": "208fef35994e6f12070881e58d689f69bb944d3cee4a2cf70f38c98618e3aa33",
+  "observations": [],
+  "uncertainties": [
+    {
+      "code": "synthetic_marker_missing",
+      "message": "未识别到“仅用于测试/非真实医疗建议”标记；该文书不得进入真实建议依据，需要人工核对来源。",
+      "affects": []
+    },
+    {
+      "code": "mock_mode",
+      "message": "mock 模式未执行真实报告抽取；请使用 live 或 replay 模式",
+      "affects": []
+    }
+  ],
+  "needs_confirmation": true,
+  "confirmation_fields": [
+    "advice_doc.marker"
+  ],
+  "data": {
+    "document_kind": "无法判断",
+    "title": "",
+    "warning_marker_present": false,
+    "warning_text": "",
+    "institution": null,
+    "document_date": null,
+    "linked_report_id": null,
+    "report_type_metadata": null,
+    "items": [],
+    "clinical_use_allowed": false
+  },
+  "findings": [],
+  "usage": {
+    "model": "mock",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "latency_ms": 0,
+    "cached": false,
+    "mode": "mock"
+  },
+  "error": null,
+  "started_at": "2026-10-17T17:38:53+08:00",
+  "ended_at": "2026-10-17T17:38:53+08:00",
+  "contract_version": "1.0",
+  "_sample_note": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，不得把本样例内容当作模型效果证据。",
+  "_sample_task": "advice_doc_extract",
+  "_sample_source": "ADVICE001",
+  "_mode": "mock"
+}

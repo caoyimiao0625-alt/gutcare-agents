@@ -1,0 +1,449 @@
+openapi: 3.0.3
+info:
+  title: GutCare Agent Service API
+  version: 0.2.0
+  description: |
+    智能体开发方对外接口。业务后端按本文档接入；APP 不直接调用本服务。
+
+    通用约定：
+    - 鉴权：内部 Bearer（环境变量 GCA_INTERNAL_TOKEN），`/healthz` 与演示控制台除外。
+    - 错误：`application/problem+json`，含稳定 `code` 与 `request_id`。
+    - 幂等：同一 `patient_id` + 同一任务类型 + 同一输入快照哈希会复用已有任务；
+      传 `options.force_refresh=true` 可强制重跑。
+    - 版本：所有结果带 `agent_version`、`prompt_version`、`model_id`。
+    - 状态：`ok` / `partial` / `insufficient_data` / `failed` / `skipped`；
+      任务级为 `queued` / `running` / `succeeded` / `partial` / `insufficient_data` / `failed`。
+servers:
+  - url: http://127.0.0.1:8100
+paths:
+  /healthz:
+    get:
+      summary: 健康检查
+      security: []
+      responses:
+        "200":
+          description: 服务可用
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: {type: boolean}
+                  mode: {type: string, enum: [live, mock, replay]}
+                  time: {type: string}
+  /v1/meta:
+    get:
+      summary: 服务能力与版本信息
+      responses:
+        "200":
+          description: 配置摘要、Agent 列表、规则与知识库版本、缓存与用量统计
+          content:
+            application/json:
+              schema: {type: object}
+  /v1/tasks:
+    post:
+      summary: 提交单任务（单 Agent）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TaskRequest"}
+      responses:
+        "200":
+          description: 单 Agent 结构化结果
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AgentResult"}
+        "400": {$ref: "#/components/responses/Problem"}
+        "401": {$ref: "#/components/responses/Problem"}
+  /v1/analysis:
+    post:
+      summary: 提交综合分析（多 Agent 编排，异步）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TaskRequest"}
+      responses:
+        "202":
+          description: 已受理，返回 task_id 供轮询
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: {type: string}
+                  status: {type: string, example: queued}
+                  request_id: {type: string}
+  /v1/tasks/{task_id}:
+    get:
+      summary: 查询任务状态与结果
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: 任务快照（含阶段时间线与综合报告）
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/TaskRun"}
+        "404": {$ref: "#/components/responses/Problem"}
+  /v1/tasks/{task_id}/cancel:
+    post:
+      summary: 请求取消（协作式：只在阶段之间生效，已完成阶段结果保留）
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "202":
+          description: 取消请求已受理；已结束的任务不会被覆盖
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: {type: string}
+                  cancelled: {type: boolean, description: "false 表示任务已结束，未做改动"}
+                  status:
+                    type: string
+                    enum: [queued, running, succeeded, partial, insufficient_data, failed, cancelled]
+                  request_id: {type: string}
+        "404": {$ref: "#/components/responses/Problem"}
+  /v1/safety/check:
+    post:
+      summary: 即时危险征象规则检查（不调用模型）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patient_id, records]
+              properties:
+                patient_id: {type: string}
+                records:
+                  type: array
+                  items: {$ref: "#/components/schemas/HealthRecord"}
+                text:
+                  type: string
+                  description: 可选自由文本（关键词识别结果需患者确认）
+                profile:
+                  $ref: "#/components/schemas/PatientProfile"
+      responses:
+        "200":
+          description: 规则命中结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rule_set_version: {type: string}
+                  review_status: {type: string, example: unverified_demo}
+                  max_severity_level: {type: integer, enum: [0, 1, 2, 3]}
+                  alerts:
+                    type: array
+                    items: {$ref: "#/components/schemas/SafetyAlert"}
+  /v1/safety/alerts/{patient_id}:
+    get:
+      summary: 查看患者风险提示历史
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: 提示列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "#/components/schemas/SafetyAlert"}
+  /v1/assistant/chat:
+    post:
+      summary: 对话助手（只读；药物/诊断类请求不调用模型）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TaskRequest"}
+      responses:
+        "200":
+          description: 回答与引用
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AgentResult"}
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  security:
+    - BearerAuth: []
+  responses:
+    Problem:
+      description: 错误（RFC 9457 风格）
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer}
+        code:
+          type: string
+          enum:
+            - invalid_request
+            - patient_scope_violation
+            - unauthorized
+            - file_not_found
+            - unsupported_media_type
+            - image_low_quality
+            - input_data_insufficient
+            - model_unavailable
+            - model_timeout
+            - model_rate_limited
+            - model_invalid_output
+            - agent_timeout
+            - agent_failed
+            - evidence_unresolved
+            - unsafe_content_blocked
+            - not_implemented
+            - internal_error
+        detail: {type: string}
+        request_id: {type: string}
+    PatientProfile:
+      type: object
+      properties:
+        patient_id: {type: string}
+        display_name: {type: string}
+        age: {type: integer, nullable: true}
+        diagnosis_status: {type: string, enum: [confirmed, unconfirmed, unknown]}
+        diagnosis: {type: string, nullable: true}
+        profile_version: {type: integer}
+        restrictions:
+          type: array
+          items: {type: string}
+    HealthRecord:
+      type: object
+      required: [record_id, patient_id, kind, occurred_at]
+      properties:
+        record_id: {type: string}
+        patient_id: {type: string}
+        kind: {type: string, enum: [diet, stool, symptom, medication, activity, mood]}
+        occurred_at: {type: string, description: 发生时间（带 +08:00 偏移）}
+        created_at: {type: string, description: 录入时间}
+        status:
+          type: string
+          enum: [confirmed, pending_confirmation, deleted, superseded]
+        version: {type: integer}
+        supersedes: {type: string, nullable: true}
+        source: {type: string}
+        data:
+          type: object
+          description: 各类型专属字段，例如 stool:{bristol_type,blood_reported}、symptom:{name,severity,duration_hours}
+    TaskRequest:
+      type: object
+      required: [patient_id, kind]
+      properties:
+        task_id: {type: string, description: 不传则服务端生成}
+        kind:
+          type: string
+          enum:
+            - report_extract
+            - report_text_extract
+            - report_ocr
+            - advice_doc_extract
+            - meal_recognize
+            - stool_record
+            - stool_image_recognize
+            - trend_analyze
+            - advice_generate
+            - analysis
+            - assistant_chat
+            - safety_check
+        patient_id: {type: string, description: 内部受控标识，不是 APP 传入的可信身份}
+        time_range:
+          type: object
+          properties:
+            start: {type: string, nullable: true}
+            end: {type: string, nullable: true}
+        records:
+          type: array
+          items: {$ref: "#/components/schemas/HealthRecord"}
+        profile: {$ref: "#/components/schemas/PatientProfile"}
+        files:
+          type: array
+          description: 受控文件引用；路径/预签名 URL 由后端提供
+          items:
+            type: object
+            properties:
+              file_id: {type: string}
+              path: {type: string}
+              mime: {type: string}
+              kind: {type: string, enum: [report, advice_doc, food_image, stool_image, other]}
+        confirmed_results:
+          type: array
+          description: 已有分析结果（供助手/建议复用）；每项必须携带与请求一致的 patient_id
+          items: {type: object}
+        safety_alerts:
+          type: array
+          description: 后端已产生的风险提示（综合建议不得覆盖）
+          items: {$ref: "#/components/schemas/SafetyAlert"}
+        query: {type: string, description: 助手类任务的问题文本}
+        options:
+          type: object
+          properties:
+            force_refresh: {type: boolean, description: 忽略缓存与幂等复用}
+            no_reuse: {type: boolean, description: 不复用已确认的领域识别结果（强制重新解析同一文件）}
+            text:
+              type: string
+              description: |
+                `report_text_extract` 的输入文本（OCR/转写结果）。视觉模型不可用时，
+                由后端或患者提供文本，智能体仍可做字段抽取与证据校验。
+            source_id:
+              type: string
+              description: 文本来源标识（作为证据 ref_id 写回结果，便于回溯）
+            simulate_faults:
+              type: array
+              items: {type: string, enum: [medical, diet, stool, trend, advice, all]}
+              description: 演示/演练用故障注入；注入过的任务不进入幂等复用
+            simulate_delay_ms: {type: integer, description: 故障注入前的延迟（模拟超时）}
+        idempotency_key: {type: string}
+    SourceRef:
+      type: object
+      properties:
+        ref_type: {type: string, enum: [record, report_page, image_region, knowledge, profile]}
+        ref_id: {type: string}
+        locator: {type: string, example: "p1/line3"}
+        quote: {type: string}
+    Observation:
+      type: object
+      properties:
+        obs_id: {type: string}
+        kind:
+          type: string
+          enum: [fact, patient_report, derived_stat, model_inference, knowledge]
+        statement: {type: string}
+        source_record_ids:
+          type: array
+          items: {type: string}
+        source_refs:
+          type: array
+          items: {$ref: "#/components/schemas/SourceRef"}
+        confidence: {type: string, enum: [high, medium, low]}
+        value: {nullable: true}
+        needs_confirmation: {type: boolean, description: 综合报告中领域识别候选或临时推断是否仍待患者确认}
+    AgentResult:
+      type: object
+      properties:
+        task_id: {type: string}
+        agent: {type: string}
+        agent_version: {type: string}
+        prompt_version: {type: string}
+        model_id: {type: string}
+        patient_id: {type: string}
+        status: {type: string, enum: [ok, partial, failed, skipped, insufficient_data]}
+        input_record_ids:
+          type: array
+          items: {type: string}
+        input_versions:
+          type: object
+          additionalProperties: {type: string}
+        input_snapshot_hash: {type: string}
+        observations:
+          type: array
+          items: {$ref: "#/components/schemas/Observation"}
+        uncertainties:
+          type: array
+          items:
+            type: object
+            properties:
+              code: {type: string}
+              message: {type: string}
+              affects:
+                type: array
+                items: {type: string}
+        needs_confirmation: {type: boolean}
+        confirmation_fields:
+          type: array
+          items: {type: string}
+        data: {type: object}
+        findings:
+          type: array
+          items:
+            type: object
+            properties:
+              code: {type: string}
+              severity: {type: string, enum: [info, warn, error]}
+              message: {type: string}
+              target: {type: string}
+              action: {type: string, enum: [dropped, downgraded, flagged]}
+        usage: {type: object}
+        error:
+          type: object
+          nullable: true
+          properties:
+            code: {type: string}
+            message: {type: string}
+            retryable: {type: boolean}
+    SafetyAlert:
+      type: object
+      properties:
+        alert_id: {type: string}
+        patient_id: {type: string}
+        severity_level: {type: integer, enum: [1, 2, 3]}
+        level_label: {type: string}
+        rule_id: {type: string}
+        rule_version: {type: string}
+        review_status: {type: string, example: unverified_demo}
+        message: {type: string}
+        recommended_action: {type: string}
+        rationale: {type: string}
+        trigger_record_ids:
+          type: array
+          items: {type: string}
+        needs_confirmation: {type: boolean}
+        status: {type: string, enum: [unread, read]}
+        created_at: {type: string}
+        disclaimer: {type: string}
+    TaskRun:
+      type: object
+      properties:
+        task_id: {type: string}
+        kind: {type: string}
+        patient_id: {type: string}
+        status:
+          type: string
+          enum: [queued, running, succeeded, partial, insufficient_data, failed, cancelled]
+        input_snapshot_hash: {type: string}
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              stage: {type: string}
+              agent: {type: string}
+              status: {type: string}
+              started_at: {type: string}
+              ended_at: {type: string}
+              note: {type: string}
+        agent_results:
+          type: object
+          additionalProperties: {$ref: "#/components/schemas/AgentResult"}
+        report:
+          type: object
+          description: 对外的综合分析报告：窗口、数据概况、观察、建议、风险、缺口、校验与版本
+        model_versions:
+          type: object
+          additionalProperties: {type: string}

@@ -1,0 +1,8 @@
+{
+  "type": "https://gutcare.local/problems/patient_scope_violation",
+  "title": "patient_scope_violation",
+  "status": 400,
+  "code": "patient_scope_violation",
+  "detail": "records[2] 的 patient_id 与请求的 patient_id 不一致",
+  "request_id": "3f9c1a7d0b2e"
+}

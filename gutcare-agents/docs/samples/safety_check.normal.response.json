@@ -1,0 +1,9 @@
+{
+  "rule_set_version": "demo-2026.10",
+  "review_status": "unverified_demo",
+  "max_severity_level": 0,
+  "alerts": [],
+  "disclaimer": "本规则集为软件测试用示例，阈值与文案均未经临床专业审核，不得用于真实患者的诊疗决策；真实上线前必须由具备相应资质的专业人员逐条审核并签署版本。",
+  "latency_note": "本路径不调用任何模型，模型不可用时仍可工作",
+  "_sample_note": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，不得把本样例内容当作模型效果证据。"
+}

@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-10-17T17:38:54+0800",
+  "mode": "mock",
+  "model": "deepseek-chat",
+  "fixture_root": "E:\\仓颉杯\\ds\\testdata_v4",
+  "samples": [
+    {
+      "kind": "report_extract",
+      "source_sample": "MED002",
+      "request": "report_extract.request.json",
+      "response": "report_extract.response.json",
+      "expected_status": "insufficient_data",
+      "has_images": true,
+      "note": "mock 模式下识图类任务会返回 insufficient_data 并说明未执行真实识别"
+    },
+    {
+      "kind": "advice_doc_extract",
+      "source_sample": "ADVICE001",
+      "request": "advice_doc_extract.request.json",
+      "response": "advice_doc_extract.response.json",
+      "expected_status": "ok",
+      "has_images": true,
+      "note": "mock 模式下识图类任务会返回 insufficient_data 并说明未执行真实识别"
+    },
+    {
+      "kind": "meal_recognize",
+      "source_sample": "FOOD001",
+      "request": "meal_recognize.request.json",
+      "response": "meal_recognize.response.json",
+      "expected_status": "insufficient_data",
+      "has_images": true,
+      "note": "mock 模式下识图类任务会返回 insufficient_data 并说明未执行真实识别"
+    },
+    {
+      "kind": "stool_record",
+      "source_sample": "STOOL001",
+      "request": "stool_record.request.json",
+      "response": "stool_record.response.json",
+      "expected_status": "ok",
+      "has_images": false,
+      "note": "mock 模式下识图类任务会返回 insufficient_data 并说明未执行真实识别"
+    },
+    {
+      "kind": "trend_analyze",
+      "source_sample": "TREND001",
+      "request": "trend_analyze.request.json",
+      "response": "trend_analyze.response.json",
+      "expected_status": "partial",
+      "has_images": false,
+      "note": "mock 模式下识图类任务会返回 insufficient_data 并说明未执行真实识别"
+    },
+    {
+      "kind": "safety_check.normal",
+      "request": "safety_check.normal.request.json",
+      "response": "safety_check.normal.response.json",
+      "expected_max_severity": 0
+    },
+    {
+      "kind": "safety_check.blood",
+      "request": "safety_check.blood.request.json",
+      "response": "safety_check.blood.response.json",
+      "expected_max_severity": 2
+    },
+    {
+      "kind": "safety_check.black_tarry",
+      "request": "safety_check.black_tarry.request.json",
+      "response": "safety_check.black_tarry.response.json",
+      "expected_max_severity": 3
+    },
+    {
+      "kind": "analysis_full",
+      "request": "analysis_full.request.json",
+      "response": "analysis_full.response.json",
+      "expected_status": "partial",
+      "note": "mock 模式下 trend 的模型叙述缺失，因此任务状态为 partial（这是真实的降级结果）"
+    },
+    {
+      "kind": "analysis_degraded",
+      "request": "analysis_full.request.json",
+      "response": "analysis_degraded.response.json",
+      "expected_status": "partial",
+      "note": "通过 options.simulate_faults 注入 advice 故障，用于演示部分成功"
+    },
+    {
+      "kind": "analysis_insufficient",
+      "request": "analysis_full.request.json",
+      "response": "analysis_insufficient.response.json",
+      "expected_status": "partial",
+      "note": "SYN009 没有已确认诊断，用于演示“不得生成疾病专属建议”"
+    }
+  ],
+  "usage": {
+    "mock": "用于接口结构联调；识图类结果明确标注未执行真实识别",
+    "live": "用于质量对照；注意模型与 prompt 版本字段"
+  },
+  "not_included": [
+    "真实患者数据（本仓库只使用测试包合成/公开脱敏数据）",
+    "临床审核过的规则与知识内容"
+  ]
+}

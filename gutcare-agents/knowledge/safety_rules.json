@@ -1,0 +1,119 @@
+{
+  "rule_set_version": "demo-2026.10",
+  "review_status": "unverified_demo",
+  "disclaimer": "本规则集为软件测试用示例，阈值与文案均未经临床专业审核，不得用于真实患者的诊疗决策；真实上线前必须由具备相应资质的专业人员逐条审核并签署版本。",
+  "levels": {
+    "3": "紧急危险征象：建议立即前往急诊或联系当地急救服务，不要等待应用内分析完成。",
+    "2": "建议尽快联系医疗机构评估：本提示不构成诊断，具体处理以接诊医务人员判断为准。",
+    "1": "一般关注：用于提示补充记录或完善档案，不代表存在医学风险。"
+  },
+  "rules": [
+    {
+      "rule_id": "R-BLOOD-STOOL-EXPLICIT",
+      "version": "1",
+      "severity_level": 2,
+      "title": "患者主动记录便血",
+      "when": { "field": "stool.blood_reported", "op": "eq", "value": true },
+      "message": "你记录了排便时出现血液。系统无法根据照片或记录判断原因，这类表现需要由医务人员评估。",
+      "recommended_action": "建议尽快联系原接诊医生或就近医疗机构评估；如出血量多、持续不止或伴头晕乏力，请立即就医。",
+      "rationale": "患者主动报告的便血属于需要医学评估的主诉；系统不依据图像或文本推断病因。",
+      "source_note": "触发字段：stool.blood_reported == true",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-BLACK-TARRY",
+      "version": "1",
+      "severity_level": 3,
+      "title": "黑色柏油样便相关表述",
+      "when": { "field": "stool.has_black_tarry", "op": "eq", "value": true },
+      "message": "记录中出现“黑色 / 柏油样”大便相关描述。这属于需要立即医学评估的危险征象提示。",
+      "recommended_action": "请立即前往急诊或联系当地急救服务；不要等待应用内分析结果，也不要自行服用止血或止痛药物。",
+      "rationale": "黑色柏油样便可能与上消化道出血相关，属于须优先就医的表现；本系统只做提示，不作诊断。",
+      "source_note": "触发字段：stool.has_black_tarry（由患者填写或自述文本识别）",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-VOMIT-BLOOD",
+      "version": "1",
+      "severity_level": 3,
+      "title": "呕血或咖啡色呕吐物相关表述",
+      "when": { "field": "text.vomit_blood", "op": "eq", "value": true },
+      "message": "记录中出现呕血或咖啡色呕吐物相关描述。这属于需要立即医学评估的危险征象提示。",
+      "recommended_action": "请立即前往急诊或联系当地急救服务，并保留呕吐物照片或描述供接诊医生参考。",
+      "rationale": "呕血属于消化道出血的紧急表现之一；系统仅做分流提示。",
+      "source_note": "触发字段：text.vomit_blood（关键词识别，需患者确认）",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-SEVERE-PERSISTENT-PAIN",
+      "version": "1",
+      "severity_level": 2,
+      "title": "剧烈且持续的腹痛",
+      "when": {
+        "all": [
+          { "field": "symptom.max_severity", "op": "gte", "value": 8 },
+          { "field": "symptom.duration_hours_max", "op": "gte", "value": 24 }
+        ]
+      },
+      "message": "你记录的自评腹痛程度较高且持续时间较长。自评分数不等于疾病严重程度，但这种组合通常需要医学评估。",
+      "recommended_action": "建议尽快联系医疗机构评估；如疼痛突然加重、腹部僵硬或伴发热呕吐，请立即就医。",
+      "rationale": "高强度且持续的腹痛需要排除需急诊处理的情况；阈值仅为示例值。",
+      "source_note": "触发字段：symptom.max_severity >= 8 且 symptom.duration_hours_max >= 24",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-FEVER-WITH-PAIN",
+      "version": "1",
+      "severity_level": 2,
+      "title": "发热伴腹部症状",
+      "when": {
+        "all": [
+          { "field": "text.fever", "op": "eq", "value": true },
+          { "field": "symptom.max_severity", "op": "gte", "value": 5 }
+        ]
+      },
+      "message": "记录中出现发热并伴腹部症状。这类组合建议由医务人员评估，不宜仅靠居家观察。",
+      "recommended_action": "建议尽快联系医疗机构；高热不退、意识改变或剧烈腹痛请立即就医。",
+      "rationale": "发热伴腹部症状需要排除感染性或其他需处理的情况；本系统不判断病因。",
+      "source_note": "触发字段：text.fever 且 symptom.max_severity >= 5",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-WEIGHT-LOSS",
+      "version": "1",
+      "severity_level": 2,
+      "title": "非刻意体重下降",
+      "when": { "field": "text.weight_loss", "op": "eq", "value": true },
+      "message": "记录中提到体重下降或消瘦。若并非主动减重，建议由医务人员评估。",
+      "recommended_action": "建议在近期复诊时主动告知医生，包括下降幅度与时间范围。",
+      "rationale": "非刻意体重下降属于需要医学评估的警示信息，不能由应用给出原因判断。",
+      "source_note": "触发字段：text.weight_loss（关键词识别，需患者确认）",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-DEHYDRATION",
+      "version": "1",
+      "severity_level": 2,
+      "title": "无法正常进水或尿量明显减少",
+      "when": { "field": "text.dehydration", "op": "eq", "value": true },
+      "message": "记录中出现无法正常进水或尿量明显减少的描述，存在脱水风险，建议尽快医学评估。",
+      "recommended_action": "建议尽快联系医疗机构；出现明显口渴、头晕、心悸或尿量极少时请立即就医。",
+      "rationale": "持续呕吐腹泻后的脱水风险需要专业评估；系统不给出补液处方。",
+      "source_note": "触发字段：text.dehydration（关键词识别，需患者确认）",
+      "review_status": "unverified_demo"
+    },
+    {
+      "rule_id": "R-PROFILE-INCOMPLETE",
+      "version": "1",
+      "severity_level": 1,
+      "applies_to": ["analysis", "advice"],
+      "title": "缺少已确认的诊断信息",
+      "when": { "field": "patient.diagnosis_confirmed", "op": "eq", "value": false },
+      "message": "当前档案中没有已确认的诊断信息，因此系统只能提供一般性记录提示，无法给出疾病专属建议。",
+      "recommended_action": "可在“我的档案”上传诊断报告并核对确认，或手动填写已确诊疾病及其来源。",
+      "rationale": "缺少确认的医疗背景时降低个性化程度，避免给出不适用的疾病专属结论。",
+      "source_note": "触发字段：patient.diagnosis_confirmed == false",
+      "review_status": "unverified_demo"
+    }
+  ]
+}

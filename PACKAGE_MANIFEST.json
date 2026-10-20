@@ -1,0 +1,671 @@
+{
+  "package": "GutCare_后端联调交付_2026-10-20",
+  "created_at": "2026-10-20T00:52:10.989168+00:00",
+  "agent_source_commit": "53ba102f9aa27e58aee7ee64dfd50f16f40f93eb",
+  "agent_worktree_includes_uncommitted_changes": true,
+  "backend_reference_commit": "ac45fa0d53e73b699ab11fce0bcabf74a122f05a",
+  "exclusions": [
+    ".env",
+    "data/",
+    "dist/",
+    "replays/",
+    "testdata_v4/",
+    ".git/",
+    "__pycache__/"
+  ],
+  "validation": {
+    "f08_f09_tests": "17 passed",
+    "full_suite": "144 run, 50 skipped, 0 failed",
+    "backend_fastapi_in_memory_f08": "passed; partial, 1 callback, 1 evidence",
+    "docs_paths": "198 passed",
+    "real_postgresql_f08_task": "not yet tested"
+  },
+  "file_count": 129,
+  "files": [
+    {
+      "path": "gutcare-agents/.env.example",
+      "bytes": 2011,
+      "sha256": "2ddf8ae7f7dce316b0477f19814255365f2054ad73ddcd935b43526bc9247aa9"
+    },
+    {
+      "path": "gutcare-agents/.github/workflows/ci.yml",
+      "bytes": 1641,
+      "sha256": "d2c63b04d21bec4f98f767724595e4560abd5e801ae2eed609fcf08f295ad562"
+    },
+    {
+      "path": "gutcare-agents/.gitignore",
+      "bytes": 361,
+      "sha256": "f1e9d77d059e796e55dad7e1e82d244e9f9058d5a59b35ad9c9c19879451cf04"
+    },
+    {
+      "path": "gutcare-agents/Dockerfile",
+      "bytes": 1013,
+      "sha256": "015a5d8d1e1826d11a5074bd779b4de52444e8465df0f0320ed5d3192a899993"
+    },
+    {
+      "path": "gutcare-agents/Makefile",
+      "bytes": 1597,
+      "sha256": "993f489166dc7cb10585ffa9e02457bb0dbfcceed3188ba33e506566115f2fe9"
+    },
+    {
+      "path": "gutcare-agents/README.md",
+      "bytes": 18714,
+      "sha256": "846b7811c99f3442eedbf9d23277c13bb28dcbc1950b493cbd351000742ea11f"
+    },
+    {
+      "path": "gutcare-agents/console/index.html",
+      "bytes": 15301,
+      "sha256": "9de4e8cf6b399d31362debd0970caf603ad4c049568939f64e9f2035d1b7c139"
+    },
+    {
+      "path": "gutcare-agents/docker-compose.yml",
+      "bytes": 659,
+      "sha256": "91d6a4f238bfed955c79402d65f2e30d9fc57787a6f8d69ab72d0fc4fe985dc1"
+    },
+    {
+      "path": "gutcare-agents/docs/openapi.yaml",
+      "bytes": 15887,
+      "sha256": "685e616897c1e31372d62f2a6d6eb4ae48f318544a38978d93a838dd4708762a"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/advice_doc_extract.request.json",
+      "bytes": 991,
+      "sha256": "5ad821b64527dc958f943a76bd46feb58da5f4ab2c5e05cb795a4763dd1ea6d5"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/advice_doc_extract.response.json",
+      "bytes": 1822,
+      "sha256": "f5b41d84e584ec41d7f792dc64996ce82e886e04880ade0bcbf4a46eebdf3aaf"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/analysis_degraded.response.json",
+      "bytes": 46056,
+      "sha256": "0fc7de5a7def80d8921cada6a24b62a24c3b939bd540228c034839039cec94b4"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/analysis_full.request.json",
+      "bytes": 20237,
+      "sha256": "f8f6cd0219dfaaddcd5e074ee947a6c1cd27b3e92dd5dea79a8564b228a76ba1"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/analysis_full.response.json",
+      "bytes": 63374,
+      "sha256": "41e9514e8b1c994fa1687d8dbe48cf957876a8be087918ace23c00e6ad245334"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/analysis_insufficient.response.json",
+      "bytes": 59897,
+      "sha256": "7cd806d7905d81371e89e4277dd4e0db843acc0d2f397976086471fdbf9f9357"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/error_agent_timeout.response.json",
+      "bytes": 426,
+      "sha256": "938cdeca38b102d49ef4a5a88ed53005ff4a38bea270a14704f7068e68d079e7"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/error_model_unavailable.response.json",
+      "bytes": 284,
+      "sha256": "fef6e08ce86fa0efc88fc42b084de5adfce9ff512ac4f9904d0b70e1eb39b8c1"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/error_patient_scope_violation.response.json",
+      "bytes": 276,
+      "sha256": "131e0eb314358009dc74363a1d71e33a8ddf8d2fa999009638d0942e493d4b11"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/manifest.json",
+      "bytes": 3784,
+      "sha256": "625f8374446e341af2bd40d68b8a79d2427ce7de2469a99d4cfd5945b51f946a"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/meal_recognize.request.json",
+      "bytes": 758,
+      "sha256": "170a010551c3282bec73edd1d92b361dbfcd95361190f83f76c7490bf1d3a65c"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/meal_recognize.response.json",
+      "bytes": 1527,
+      "sha256": "cb4228ef3583c172228e28b221f8b0289d70a463db620005d153ca0c09dc1c21"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/report_extract.request.json",
+      "bytes": 789,
+      "sha256": "ac73ca5b7fca3512996a0172fc964380622c6372f7611dbff26bfbaec3961407"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/report_extract.response.json",
+      "bytes": 1966,
+      "sha256": "16f63a3788ac278a8e535c6a22039a4d59c7555619e15075f8e944a4f46f8be1"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.black_tarry.request.json",
+      "bytes": 581,
+      "sha256": "51fc25cb4687eb92704a21c5f4150e6ce613130f733fb32b7012563bfa3235c3"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.black_tarry.response.json",
+      "bytes": 2282,
+      "sha256": "7ee059cc9c90625687228f973ac8b06286e2e155a8d6f64ca6cba6ef322c45c2"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.blood.request.json",
+      "bytes": 572,
+      "sha256": "414534b281236e0f490a434735c7ca8360ca1f80bead1c014b37e5eec4f3c21d"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.blood.response.json",
+      "bytes": 2295,
+      "sha256": "74cbc01c71272a49909c124ca75f7babafb6ddf5388f33b65d820035227da991"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.normal.request.json",
+      "bytes": 624,
+      "sha256": "61b5d049f8e3fb7f380f93a0577895b74520a3869193930789d03a863bf696f4"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/safety_check.normal.response.json",
+      "bytes": 625,
+      "sha256": "874329875b251215534d6b8c9294dd046c260643def7a4fc2d8a8110bf8f636d"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/stool_record.request.json",
+      "bytes": 1064,
+      "sha256": "c68b56e86cf8e9cced93334f77e35aea985cc0a142e8c7e2ed1cde34a23d8d79"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/stool_record.response.json",
+      "bytes": 2118,
+      "sha256": "093d7a5b401aba7fa0a168bcfca304952febb0c7c04c9b92e2d4f8936e16361b"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/trend_analyze.request.json",
+      "bytes": 20215,
+      "sha256": "2840bf800e1028a042641b637db9cc3249d53593fd30cd7fcb9d0f67e6e0a2cd"
+    },
+    {
+      "path": "gutcare-agents/docs/samples/trend_analyze.response.json",
+      "bytes": 19176,
+      "sha256": "d5872cd68ff36b781001d7c78fadbdf5805e89e3ab4205aca84aa6ea4f960bac"
+    },
+    {
+      "path": "gutcare-agents/docs/提交前最终检查表.md",
+      "bytes": 5059,
+      "sha256": "bb9584f1eb8764b836d68123eee9bf76196faedb567a6c80ab8339861dea170f"
+    },
+    {
+      "path": "gutcare-agents/docs/提交材料清单.md",
+      "bytes": 5989,
+      "sha256": "82c2312d4c52d9ae0161f7a4a197bcec27bba525197af154bf7619b5445e92ea"
+    },
+    {
+      "path": "gutcare-agents/docs/智能体现状评估.md",
+      "bytes": 16443,
+      "sha256": "aa61064d7bcf96e60ccaf2c695f196802de9f973cd425f2641fe63e08e357f98"
+    },
+    {
+      "path": "gutcare-agents/docs/智能体详细开发文档.md",
+      "bytes": 19509,
+      "sha256": "95aea1499c53401d46eb7c112899765ca18986b7cff759fbc65a183978763cac"
+    },
+    {
+      "path": "gutcare-agents/docs/测试报告.md",
+      "bytes": 11990,
+      "sha256": "493d0021366fd60f4cd5caddd34b0c885bfd2044258f65c857b03dba6515b15e"
+    },
+    {
+      "path": "gutcare-agents/docs/演示脚本.md",
+      "bytes": 8181,
+      "sha256": "963f35087a7a76b9e71122d8dc1448cbbc95ec4060decb80ca96d557c6d3e9ea"
+    },
+    {
+      "path": "gutcare-agents/docs/演示视频分镜.md",
+      "bytes": 5283,
+      "sha256": "81aa5e8ebe5647f8c448480f10c0f8bd5f6fbbc6c7fddeb4fb7bd0b9476948e4"
+    },
+    {
+      "path": "gutcare-agents/docs/科研依据与实现映射.md",
+      "bytes": 7160,
+      "sha256": "2853e3c820dc104a1eb47072f34208d289bfca1a2f7ab6e4c0a1073d582cbd46"
+    },
+    {
+      "path": "gutcare-agents/docs/第三方模型与数据使用说明.md",
+      "bytes": 6406,
+      "sha256": "e232a75cd09de0314e0f524105fcb87a13c98007447a79b21fff84c7fccce9ba"
+    },
+    {
+      "path": "gutcare-agents/docs/答辩问答手册.md",
+      "bytes": 12230,
+      "sha256": "2803bb44d01bf0bf8f5faee88df5ba119a6e897d1a472de3a72c258aed5b5ee7"
+    },
+    {
+      "path": "gutcare-agents/docs/系统设计_智能体章节.md",
+      "bytes": 10083,
+      "sha256": "783a90cc243a92963a3de57c4f5101253aa93181d68f3e2eba99ebb98c1ca025"
+    },
+    {
+      "path": "gutcare-agents/docs/联调接入说明.md",
+      "bytes": 10792,
+      "sha256": "7c1bf79c357dc278c4835da9db58ae53dd858467947fc77cd11cb5b6e8765c29"
+    },
+    {
+      "path": "gutcare-agents/eval/ablation.json",
+      "bytes": 9872,
+      "sha256": "2c3e4b4333dbb5ccdf707b3fe9720ec277f57cd68841e90872b53bed8707b704"
+    },
+    {
+      "path": "gutcare-agents/eval/ablation.py",
+      "bytes": 14755,
+      "sha256": "22c32f32977df01b9d054bf96849fafa705f46500bcebf87f1c002909c0a59d7"
+    },
+    {
+      "path": "gutcare-agents/eval/report.json",
+      "bytes": 1385,
+      "sha256": "d3cde7d8862fb109202d55b532e3fbded51755471a154f71de9867e773d82a60"
+    },
+    {
+      "path": "gutcare-agents/eval/report_live.json",
+      "bytes": 4238,
+      "sha256": "2e47fc51ce83814a360f7b6b17e9594b65824b5af405c733b5725a5988369d48"
+    },
+    {
+      "path": "gutcare-agents/eval/run_eval.py",
+      "bytes": 10572,
+      "sha256": "1963950dd14a52b24f1441e677484821172740db20998b2bd38b67c60eb7d04a"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/__init__.py",
+      "bytes": 872,
+      "sha256": "a928df39eaf586035cc6cb1f844bc9f6763e4acc9792be3b75e33312ef29e8a4"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/__main__.py",
+      "bytes": 79,
+      "sha256": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/__init__.py",
+      "bytes": 917,
+      "sha256": "57fa1a4f4f63a210a48c544e95b170f309ff8e6b7a39ff02b6b7b412508ef5b9"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/advice.py",
+      "bytes": 12747,
+      "sha256": "d0cbaf266d140cea7dd83e0c9cd0be283abba32fb07b3e4565800eff326692bb"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/base.py",
+      "bytes": 4062,
+      "sha256": "34e4d8f537d32e170a78e1e754a235597bbb4280d840b3e7f01da12f8afc9858"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/conversation.py",
+      "bytes": 8611,
+      "sha256": "fa1ab5704cd685b4f328431a11561b24228935db54ec6240de359d90a894fd7b"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/diet.py",
+      "bytes": 9107,
+      "sha256": "5a8fbb81929e2c8d95affbc64b1f57cea79b1b28a25c67aea40072aa3071d5f9"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/medical.py",
+      "bytes": 21176,
+      "sha256": "747ea171c07e64c33abd23a184d6dd536b8bbc9f1dbf67ff8c8aea3b4c1b7ac1"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/stool.py",
+      "bytes": 9629,
+      "sha256": "9a3f09c59caff0b8d1027bb91739a9a4a6fbd529802945d04fd76aef2e78c3bd"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/agents/trend.py",
+      "bytes": 13541,
+      "sha256": "ce501427649cea89e04d4b2a381dd39505dfa2b324980633de1fa4933ca6ca14"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/api.py",
+      "bytes": 20532,
+      "sha256": "e8afe0471afed27eb121d2616201549ba09660f781c5da81e1b7b90c95ee6e3a"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/cli.py",
+      "bytes": 9960,
+      "sha256": "ec0069c8d311aeaba4e24c90e370115d1a3064376984a31135e45e09f077e20a"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/config.py",
+      "bytes": 6049,
+      "sha256": "f5ab8df6f175354114c9a7b8cdbd68eb894aaca8185518b52e5095d8afa3e624"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/contract.py",
+      "bytes": 16323,
+      "sha256": "63af89afad9099fd8c8032542fdac743c44795c44f988da4a48602d3211c942e"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/errors.py",
+      "bytes": 2673,
+      "sha256": "cc4fa76f71702ac28a482f08f724c6bec4fc494449f3d61fbbb7c94d14fdaa3f"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/f08_adapter.py",
+      "bytes": 18185,
+      "sha256": "f365917d2e5c2c6526b30f19edca99d3c6176c113adad68c350d08ae8f69b3c2"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/f09_adapter.py",
+      "bytes": 7626,
+      "sha256": "a6a7255cee7fcfb0bbd2ab177780da86e6d6eb8436800abe8dd7eb649871730b"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/fixtures.py",
+      "bytes": 16260,
+      "sha256": "08136281e076d731deb201cfc2509f4b11e5246a3ff8b71ae776393e843e3d04"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/knowledge_base.py",
+      "bytes": 5145,
+      "sha256": "c689c69506f260703812d6cffe4d72fdb9af9e5d04ba01075b8a9b004fce1cd9"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/llm.py",
+      "bytes": 14961,
+      "sha256": "ade4586c142afd0a544e95449fe00a90f9b41cea14f0f5a844ea919cc56b2285"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/mock.py",
+      "bytes": 5074,
+      "sha256": "647fd1ee58893ed64e6d7b7578ca0926da6d7968954a4510dcd326313651dcd5"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/orchestrator.py",
+      "bytes": 29872,
+      "sha256": "5384f5d96205927684ca06786981b3e82141d3ed0ea724c30a5a4dc0108c7ad5"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/pdf_input.py",
+      "bytes": 2536,
+      "sha256": "085b99eb00841b1de0ce21f52512a8244d7e62bc48e64e271a0ddbf4615e4113"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/prompts.py",
+      "bytes": 2422,
+      "sha256": "1722c30fc52e73f40d3cc6365b42bf42d73d9b5b94e3b8bfdd1c8c8c1cdefe37"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/rules.py",
+      "bytes": 10247,
+      "sha256": "d571fb8e9c744e7d1b178b052f7b838545935184e1d0e77658882931ca2d25ec"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/stats.py",
+      "bytes": 14330,
+      "sha256": "16e138e39fc6ff67df98ff0ac5cc5d895f36755a7e6a36ee7288f208b22d99c1"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/storage_bootstrap.py",
+      "bytes": 393,
+      "sha256": "14c615850115069e59b5359b466088e5a78a465bb92254e1bf284ed77c56d87e"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/store.py",
+      "bytes": 17140,
+      "sha256": "0641ad7b9c2ad413d48098ad5693f8920d2691028d7c09a303e032eacdf712d2"
+    },
+    {
+      "path": "gutcare-agents/gutcare_agents/validation.py",
+      "bytes": 19059,
+      "sha256": "f6ba7932bfce1e813cb6364936a19e6c4a15b1a2001ba36ba03efe4e7ffc3ad0"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-DIET-002.md",
+      "bytes": 1207,
+      "sha256": "f5f8b531cecce3aba748978913a8a27c712cb8e12c3242d9bd5ddb36853855a5"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-FIBER-003.md",
+      "bytes": 1059,
+      "sha256": "44ea5c14131b9efa6238cf4580f00f5616149ed9f0aa9845d5a30170bcb7b36b"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-GUT-BRAIN-004.md",
+      "bytes": 1210,
+      "sha256": "b172072edd34683eb380cf875aff08d84c124b83b47f738d8565339d4d3c3c51"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-IBS-001.md",
+      "bytes": 1186,
+      "sha256": "962f443b1f396e2691891e4b52156a185bf054b313706b13fed56f4474adff0f"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-MED-006.md",
+      "bytes": 1006,
+      "sha256": "e2822b7474ba71cd21310ede8dd0583fed45aa8e93df750261abf4ab4b874e56"
+    },
+    {
+      "path": "gutcare-agents/knowledge/KB-REDFLAG-005.md",
+      "bytes": 1016,
+      "sha256": "2c943cb17283e449161f804d41e0917287fc33b1fb1bb34f98f9a9f940d8b793"
+    },
+    {
+      "path": "gutcare-agents/knowledge/safety_rules.json",
+      "bytes": 7029,
+      "sha256": "25e18d7ad82a888658772422cd65e502d69dfe85a84f2175b4251e9fa63b6dc8"
+    },
+    {
+      "path": "gutcare-agents/prompts/README.md",
+      "bytes": 2428,
+      "sha256": "6f4ea968a28f32328d1daa2d1d365f597ce77f4c1f66f3be9acf1fd999c483b1"
+    },
+    {
+      "path": "gutcare-agents/prompts/advice.generate.v1.md",
+      "bytes": 1645,
+      "sha256": "1d9411c8277e1e9e765f1977d75ccbf902d525533af0ae305026578284e64597"
+    },
+    {
+      "path": "gutcare-agents/prompts/advice.generate.v2.md",
+      "bytes": 2610,
+      "sha256": "7367e26c7797ccff88471152e0bf6dbcf05f9424b97d4df365a0f2f70004b889"
+    },
+    {
+      "path": "gutcare-agents/prompts/conversation.assistant.v1.md",
+      "bytes": 923,
+      "sha256": "e60d267e632cf5eff96cb7b4b1053550ead1f9f3e8fab2a802e228d3c6f4300e"
+    },
+    {
+      "path": "gutcare-agents/prompts/diet.meal.v1.md",
+      "bytes": 1192,
+      "sha256": "4364519e37198658981e6600f4df9044d94076c14d362d9ca3793a184f3187b3"
+    },
+    {
+      "path": "gutcare-agents/prompts/medical.advice_doc.v1.md",
+      "bytes": 1033,
+      "sha256": "487c5513a9f3e92238775f69fdee02d7970e540e11a5615ac51624ceb3728718"
+    },
+    {
+      "path": "gutcare-agents/prompts/medical.ocr.v1.md",
+      "bytes": 631,
+      "sha256": "6f9042dc888caf6abaa476b845bef156aab09300cb7826997354f71c7e76eabf"
+    },
+    {
+      "path": "gutcare-agents/prompts/medical.report.v1.md",
+      "bytes": 2048,
+      "sha256": "616bfdc0ee61a29312a30b83c77d7c4027ced016c89efaa66e07d5c60941fccb"
+    },
+    {
+      "path": "gutcare-agents/prompts/medical.report_text.v1.md",
+      "bytes": 2211,
+      "sha256": "9e633c683e689fc8f4a3ed8050c1f3abde41c248ccf97278af4c8a0d0b2bac8e"
+    },
+    {
+      "path": "gutcare-agents/prompts/stool.image.v1.md",
+      "bytes": 1174,
+      "sha256": "f7de381a3bdf29d3244c95867434e6fd2fd1159a909032157925108b7b48f7dc"
+    },
+    {
+      "path": "gutcare-agents/prompts/trend.narrative.v1.md",
+      "bytes": 1312,
+      "sha256": "f165b236d04f5c1d7fa520a0bbf89a43d15cabcfb941cac165e253180e58689e"
+    },
+    {
+      "path": "gutcare-agents/requirements.txt",
+      "bytes": 15,
+      "sha256": "aa48460b8f66b4e03a99a828d71aafe4ea54cf12cb5494971851b99389715a72"
+    },
+    {
+      "path": "gutcare-agents/run.ps1",
+      "bytes": 2655,
+      "sha256": "ed79c87775830d577f5ffadfc5a2894859d15dccfbdb61af47bf03ed905e26f5"
+    },
+    {
+      "path": "gutcare-agents/tests/test_agents.py",
+      "bytes": 5255,
+      "sha256": "077a681089c03fc7b09fb19385877e5c07fa29b6d6ffc56cc5347a47e9f37063"
+    },
+    {
+      "path": "gutcare-agents/tests/test_api.py",
+      "bytes": 11531,
+      "sha256": "fa262139578f8455d750d56c1ce42d33b06da91bfd53c853ad0550185180d0d8"
+    },
+    {
+      "path": "gutcare-agents/tests/test_concurrency.py",
+      "bytes": 4883,
+      "sha256": "8f1568a2a0630e83ba3dd4b69814533767ed16da87ab320ea82d3848b60b597b"
+    },
+    {
+      "path": "gutcare-agents/tests/test_config.py",
+      "bytes": 2492,
+      "sha256": "3623fa78b2a36b5ce5c8280317313edf4c89e528272e0c96cd34be00fbf80dfa"
+    },
+    {
+      "path": "gutcare-agents/tests/test_core.py",
+      "bytes": 20967,
+      "sha256": "6998a9084bbbb005c3b39281ef18e438a0604c53bc93352131e3aeb018e79d66"
+    },
+    {
+      "path": "gutcare-agents/tests/test_f08_adapter.py",
+      "bytes": 19048,
+      "sha256": "68f527da3e30d7743605cc181d9ab0e4a5641c2b788cda090b7a4684259905a7"
+    },
+    {
+      "path": "gutcare-agents/tests/test_f09_adapter.py",
+      "bytes": 5125,
+      "sha256": "356da323ae84d2b13636df2cf6756200bc1b99dcc498c7c5fb914102254646d4"
+    },
+    {
+      "path": "gutcare-agents/tests/test_integration_boundaries.py",
+      "bytes": 9524,
+      "sha256": "ae12d3de4b59bb6a8816f8a5f4b0cc340e6485bda3e759785c903e2bc606bb37"
+    },
+    {
+      "path": "gutcare-agents/tests/test_llm.py",
+      "bytes": 7004,
+      "sha256": "77ce87e671f7f64a3d4d3f358b266dad625597c99a298fe43d8ab6dc1821b62b"
+    },
+    {
+      "path": "gutcare-agents/tests/test_pipeline.py",
+      "bytes": 9142,
+      "sha256": "b88174922288f96119d54e3e37bb66028361de9d3fc6e05beb8b1492ca0bfb5a"
+    },
+    {
+      "path": "gutcare-agents/tests/test_prompts.py",
+      "bytes": 3400,
+      "sha256": "e83f0fc94551eb9dfa3530cbc5842cf235bea6e65947a8eb9a28db4a8979d9d2"
+    },
+    {
+      "path": "gutcare-agents/tests/test_sqlite_adapter.py",
+      "bytes": 5645,
+      "sha256": "38401a34697cc0350949f6b3e2df32c717a386d863bb6854f20c444cf80d65fa"
+    },
+    {
+      "path": "gutcare-agents/tests/test_stool_pdf.py",
+      "bytes": 8053,
+      "sha256": "f8f5604f806d2b37dec8ad499c8ad57173e5878615c07e9daa9f22de1ba9b2ec"
+    },
+    {
+      "path": "gutcare-agents/tests/test_text_extract.py",
+      "bytes": 7437,
+      "sha256": "9e90d8c7665afc5c5dd3a1159851c2d4d9368d73dcaea1a69abc07816597ebdc"
+    },
+    {
+      "path": "gutcare-agents/tests/test_tools.py",
+      "bytes": 6792,
+      "sha256": "57c6255e58fdc4630217075b2a9ee64a3d7c753e0a61a1c959556d8d6505a350"
+    },
+    {
+      "path": "gutcare-agents/tools/check_docs.py",
+      "bytes": 5578,
+      "sha256": "aafb2398ba75ac665bc3288d03a52b33957b9045a4ff09c546f6776381ca1610"
+    },
+    {
+      "path": "gutcare-agents/tools/demo_run.py",
+      "bytes": 9423,
+      "sha256": "04a7f7d0c33ca60859378ce3b58736a063a2b56d3cf6e44e8f1d89c4e3f11b87"
+    },
+    {
+      "path": "gutcare-agents/tools/f08_claim_once.py",
+      "bytes": 3360,
+      "sha256": "812e1230408ba4cfa47b1af0685a3217703cbc145ad67c0056ce4ef4d2e405c5"
+    },
+    {
+      "path": "gutcare-agents/tools/live_smoke.py",
+      "bytes": 10909,
+      "sha256": "a5e9aa4b13265a05fd57ad3bfda24f25a1be90255f21f653eb3cdad373c45b35"
+    },
+    {
+      "path": "gutcare-agents/tools/make_samples.py",
+      "bytes": 10642,
+      "sha256": "8a96ea49f12fe08a83a3c9e896a562eb06cdb276b2f09db396a425ee88d09ea7"
+    },
+    {
+      "path": "gutcare-agents/tools/package_submission.py",
+      "bytes": 5047,
+      "sha256": "7fb34fe9cf07ae2d54999e5ae58707accf8594ee076d524d90558d2404c4ae24"
+    },
+    {
+      "path": "gutcare-agents/tools/smoke_test.py",
+      "bytes": 8574,
+      "sha256": "bea998afcbea609354808a90a26bf7b7b36178df89c463e3821f11d9bb00e6bf"
+    },
+    {
+      "path": "gutcare-agents/tools/verify_latest_backend_f08.py",
+      "bytes": 10347,
+      "sha256": "2c54269b24d884ebb5692dcc92f5dc438b6bf5dc496277c3b94e20b22c1d3fbe"
+    },
+    {
+      "path": "先读_后端联调交付说明.md",
+      "bytes": 7264,
+      "sha256": "0f23b43794720c1819f0a1c3050bdc709d159fa1ed10881383890c7ce317f23a"
+    },
+    {
+      "path": "后端契约参考_固定版本/contracts/agent/agent-v1.yaml",
+      "bytes": 39287,
+      "sha256": "529d98db754fb9cbaa76914d098b7b4c7df4f590ea67af12252d6847d97a5a35"
+    },
+    {
+      "path": "后端契约参考_固定版本/docs/ADR/0005-智能体通过内部API集成.md",
+      "bytes": 667,
+      "sha256": "a17c2b8c1938ba75ecbf8d83aa9017090619b509b721953e2068692c97e02e9f"
+    },
+    {
+      "path": "后端契约参考_固定版本/docs/ADR/0012-f08-frozen-analysis-task-workflow.md",
+      "bytes": 3255,
+      "sha256": "f1181c469920afa700e40038d040b21ec7d867c9254e1403f142afa94f511386"
+    },
+    {
+      "path": "后端契约参考_固定版本/docs/ADR/0013-f09-advice-evidence-lifecycle.md",
+      "bytes": 3794,
+      "sha256": "11e24366b23c319bcdeb341717c394fb9cf70635018b74450206358855e2ac0f"
+    },
+    {
+      "path": "后端契约参考_固定版本/docs/ADR/0019-f14-mood-records-and-consent.md",
+      "bytes": 8607,
+      "sha256": "40eeaf7a98355d95b078292392f168bee75e33b560ab1d5f2c17b5d7050fe016"
+    },
+    {
+      "path": "后端契约参考_固定版本/docs/ADR/0021-f03-f04-image-recognition-lifecycle.md",
+      "bytes": 19030,
+      "sha256": "ca7214a2bcf90fef7a9b24b0e761851826fe43a8b904a468c5913357a8259697"
+    }
+  ]
+}

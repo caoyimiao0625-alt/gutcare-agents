@@ -1,0 +1,65 @@
+{
+  "task_id": "chinese_report_e51315353d7b",
+  "agent": "medical",
+  "patient_id": "EXT-assets",
+  "status": "insufficient_data",
+  "agent_version": "0.2.0",
+  "prompt_version": "v1",
+  "prompt_sha256": "968c55467a33c7c5",
+  "model_id": "mock",
+  "input_record_ids": [],
+  "input_versions": {},
+  "input_snapshot_hash": "3c3e4d0389e7c93e88806a318cfe401bbe3596a173b62da3db996d746aea091a",
+  "observations": [],
+  "uncertainties": [
+    {
+      "code": "no_exam_items",
+      "message": "未抽取到明确的检查项，可能是遮挡严重或非结构化文书",
+      "affects": []
+    },
+    {
+      "code": "mock_mode",
+      "message": "mock 模式未执行真实报告抽取；请使用 live 或 replay 模式",
+      "affects": []
+    },
+    {
+      "code": "nothing_extracted",
+      "message": "未从该文件抽取到可用的检查项或结论；请更换更清晰的文件，或手动录入关键字段。",
+      "affects": []
+    }
+  ],
+  "needs_confirmation": true,
+  "confirmation_fields": [
+    "report.diagnosis",
+    "report.suggestions",
+    "report.medications"
+  ],
+  "data": {
+    "document_type": "unreadable",
+    "report_date": null,
+    "institution": null,
+    "exam_items": [],
+    "conclusion": "",
+    "suggestions": [],
+    "diagnosis_candidates": [],
+    "medications": [],
+    "redactions": []
+  },
+  "findings": [],
+  "usage": {
+    "model": "mock",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "latency_ms": 0,
+    "cached": false,
+    "mode": "mock"
+  },
+  "error": null,
+  "started_at": "2026-10-17T17:38:52+08:00",
+  "ended_at": "2026-10-17T17:38:53+08:00",
+  "contract_version": "1.0",
+  "_sample_note": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，不得把本样例内容当作模型效果证据。",
+  "_sample_task": "report_extract",
+  "_sample_source": "MED002",
+  "_mode": "mock"
+}

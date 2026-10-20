@@ -1,0 +1,36 @@
+{
+  "task_id": "advice_document_28997bbee980",
+  "kind": "advice_doc_extract",
+  "patient_id": "EXT-assets",
+  "time_range": {
+    "start": null,
+    "end": null
+  },
+  "records": [],
+  "profile": null,
+  "files": [
+    {
+      "file_id": "ADVICE001",
+      "path": "inputs/assets/advice/ADVICE001.png",
+      "mime": "image/png",
+      "kind": "advice_doc"
+    },
+    {
+      "file_id": "MED002",
+      "path": "inputs/assets/reports/MED002.png",
+      "mime": "image/png",
+      "kind": "report",
+      "role": "linked_report"
+    }
+  ],
+  "confirmed_results": [],
+  "safety_alerts": [],
+  "query": "",
+  "options": {
+    "source_id": null,
+    "task_hint": "上传并抽取医嘱字段，保留模拟/测试标记，并验证其与对应报告的关联；不得把内容用于真实诊疗"
+  },
+  "idempotency_key": "",
+  "received_at": "2026-10-17T17:38:53+08:00",
+  "snapshot_hash": "208fef35994e6f12070881e58d689f69bb944d3cee4a2cf70f38c98618e3aa33"
+}

@@ -1,0 +1,710 @@
+{
+  "task_id": "analysis_d26b497dd051",
+  "kind": "analysis",
+  "patient_id": "SYN001",
+  "time_range": {
+    "start": "2026-08-31T08:01:00+08:00",
+    "end": "2026-09-07T08:01:00+08:00"
+  },
+  "records": [
+    {
+      "record_id": "SYN001-diet-1",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "面包、牛奶",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-1",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 2,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-1",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 1,
+        "event_relation": "unknown"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-1",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": false,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-1",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-01T08:01:00+08:00",
+      "created_at": "2026-09-01T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 11
+      }
+    },
+    {
+      "record_id": "SYN001-diet-2",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-02T08:01:00+08:00",
+      "created_at": "2026-09-02T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "面条、豆腐",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-2",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-02T08:01:00+08:00",
+      "created_at": "2026-09-02T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 3,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-2",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-02T08:01:00+08:00",
+      "created_at": "2026-09-02T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 2,
+        "event_relation": "after_meal"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-2",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-02T08:01:00+08:00",
+      "created_at": "2026-09-02T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": true,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-2",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-02T08:01:00+08:00",
+      "created_at": "2026-09-02T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 12
+      }
+    },
+    {
+      "record_id": "SYN001-diet-3",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-03T08:01:00+08:00",
+      "created_at": "2026-09-03T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "粥、鱼肉",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-3",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-03T08:01:00+08:00",
+      "created_at": "2026-09-03T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 4,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-3",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-03T08:01:00+08:00",
+      "created_at": "2026-09-03T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 3,
+        "event_relation": "unknown"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-3",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-03T08:01:00+08:00",
+      "created_at": "2026-09-03T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": true,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-3",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-03T08:01:00+08:00",
+      "created_at": "2026-09-03T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 13
+      }
+    },
+    {
+      "record_id": "SYN001-diet-4",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-04T08:01:00+08:00",
+      "created_at": "2026-09-04T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "米饭、鸡蛋、青菜",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-4",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-04T08:01:00+08:00",
+      "created_at": "2026-09-04T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 5,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-4",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-04T08:01:00+08:00",
+      "created_at": "2026-09-04T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 4,
+        "event_relation": "after_meal"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-4",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-04T08:01:00+08:00",
+      "created_at": "2026-09-04T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": false,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-4",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-04T08:01:00+08:00",
+      "created_at": "2026-09-04T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 14
+      }
+    },
+    {
+      "record_id": "SYN001-diet-5",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-05T08:01:00+08:00",
+      "created_at": "2026-09-05T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "面包、牛奶",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-5",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-05T08:01:00+08:00",
+      "created_at": "2026-09-05T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 6,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-5",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-05T08:01:00+08:00",
+      "created_at": "2026-09-05T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 5,
+        "event_relation": "unknown"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-5",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-05T08:01:00+08:00",
+      "created_at": "2026-09-05T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": true,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-5",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-05T08:01:00+08:00",
+      "created_at": "2026-09-05T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 15
+      }
+    },
+    {
+      "record_id": "SYN001-diet-6",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-06T08:01:00+08:00",
+      "created_at": "2026-09-06T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "面条、豆腐",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-6",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-06T08:01:00+08:00",
+      "created_at": "2026-09-06T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 7,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-6",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-06T08:01:00+08:00",
+      "created_at": "2026-09-06T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 6,
+        "event_relation": "after_meal"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-6",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-06T08:01:00+08:00",
+      "created_at": "2026-09-06T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": true,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-6",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-06T08:01:00+08:00",
+      "created_at": "2026-09-06T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 16
+      }
+    },
+    {
+      "record_id": "SYN001-diet-7",
+      "patient_id": "SYN001",
+      "kind": "diet",
+      "occurred_at": "2026-09-07T08:01:00+08:00",
+      "created_at": "2026-09-07T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "description": "粥、鱼肉",
+        "meal_type": "breakfast",
+        "portion": "一份"
+      }
+    },
+    {
+      "record_id": "SYN001-stool-7",
+      "patient_id": "SYN001",
+      "kind": "stool",
+      "occurred_at": "2026-09-07T08:01:00+08:00",
+      "created_at": "2026-09-07T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "bristol_type": 1,
+        "blood_reported": false
+      }
+    },
+    {
+      "record_id": "SYN001-symptom-7",
+      "patient_id": "SYN001",
+      "kind": "symptom",
+      "occurred_at": "2026-09-07T08:01:00+08:00",
+      "created_at": "2026-09-07T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "name": "腹痛",
+        "severity": 0,
+        "event_relation": "unknown"
+      }
+    },
+    {
+      "record_id": "SYN001-medication-7",
+      "patient_id": "SYN001",
+      "kind": "medication",
+      "occurred_at": "2026-09-07T08:01:00+08:00",
+      "created_at": "2026-09-07T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "plan_id": "SYN001-PLAN",
+        "taken": false,
+        "medicine_name": "模拟医嘱药物A",
+        "dose_text": "按已录入医嘱；本样例不提供剂量"
+      }
+    },
+    {
+      "record_id": "SYN001-activity-7",
+      "patient_id": "SYN001",
+      "kind": "activity",
+      "occurred_at": "2026-09-07T08:01:00+08:00",
+      "created_at": "2026-09-07T08:02:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "activity_type": "walking",
+        "duration_minutes": 17
+      }
+    },
+    {
+      "record_id": "SYN001-mood-1",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-01T21:01:00+08:00",
+      "created_at": "2026-09-01T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 5,
+        "stress_level": 1,
+        "mood_tags": [
+          "低落"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    },
+    {
+      "record_id": "SYN001-mood-2",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-02T21:01:00+08:00",
+      "created_at": "2026-09-02T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 3,
+        "stress_level": 3,
+        "mood_tags": [
+          "紧张"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    },
+    {
+      "record_id": "SYN001-mood-3",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-03T21:01:00+08:00",
+      "created_at": "2026-09-03T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 3,
+        "stress_level": 3,
+        "mood_tags": [
+          "烦躁"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    },
+    {
+      "record_id": "SYN001-mood-4",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-04T21:01:00+08:00",
+      "created_at": "2026-09-04T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 4,
+        "stress_level": 2,
+        "mood_tags": [
+          "忙碌"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    },
+    {
+      "record_id": "SYN001-mood-5",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-05T21:01:00+08:00",
+      "created_at": "2026-09-05T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 1,
+        "stress_level": 5,
+        "mood_tags": [
+          "平静"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    },
+    {
+      "record_id": "SYN001-mood-6",
+      "patient_id": "SYN001",
+      "kind": "mood",
+      "occurred_at": "2026-09-06T21:01:00+08:00",
+      "created_at": "2026-09-06T21:03:00+08:00",
+      "status": "confirmed",
+      "version": 1,
+      "source": "manual",
+      "origin": "synthetic",
+      "data": {
+        "mood_level": 2,
+        "stress_level": 4,
+        "mood_tags": [
+          "轻松",
+          "有精神"
+        ],
+        "note": "模拟自我记录；用于观察情绪、压力与消化症状的时间关联，不表示因果",
+        "scale": "project_1_to_5",
+        "self_reported": true
+      }
+    }
+  ],
+  "profile": {
+    "patient_id": "SYN001",
+    "display_name": "模拟用户001",
+    "age": 21,
+    "diagnosis_status": "confirmed",
+    "diagnosis": "IBS",
+    "profile_version": 1,
+    "restrictions": []
+  },
+  "files": [],
+  "confirmed_results": [],
+  "safety_alerts": [],
+  "query": "",
+  "options": {
+    "force_refresh": true
+  },
+  "idempotency_key": "",
+  "received_at": "2026-10-17T17:38:53+08:00",
+  "snapshot_hash": "a5de8c95d6f7d9efbb9ff752b3c793ba1d9fba3e2bb5f4c92f910f5060479a28"
+}

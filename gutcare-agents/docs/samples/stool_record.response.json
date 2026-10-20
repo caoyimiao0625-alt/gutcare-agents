@@ -1,0 +1,69 @@
+{
+  "task_id": "stool_408bacc7a372",
+  "agent": "stool",
+  "patient_id": "SYN001",
+  "status": "ok",
+  "agent_version": "0.2.0",
+  "prompt_version": "v1",
+  "prompt_sha256": "",
+  "model_id": "deterministic",
+  "input_record_ids": [
+    "INPUT-STOOL001"
+  ],
+  "input_versions": {
+    "INPUT-STOOL001": "1"
+  },
+  "input_snapshot_hash": "e7a5b8791c8e796dc69a1479e5b6b31cfc65b066d1fd024ea9bc7154ef5c03a3",
+  "observations": [
+    {
+      "obs_id": "stool_obs_001",
+      "kind": "fact",
+      "statement": "排便记录（2026-09-01T08:01:00+08:00）记录为 Bristol 2 型：香肠状但表面凹凸；该分类为患者手动确认结果，非图像推断。",
+      "source_record_ids": [
+        "INPUT-STOOL001"
+      ],
+      "source_refs": [],
+      "confidence": "high",
+      "value": {
+        "bristol_type": 2
+      }
+    }
+  ],
+  "uncertainties": [
+    {
+      "code": "attention_type",
+      "message": "Bristol 2 型属于值得继续观察的类型，建议保持按次记录；类型本身不能说明原因，也不是疾病诊断。",
+      "affects": [
+        "INPUT-STOOL001"
+      ]
+    }
+  ],
+  "needs_confirmation": false,
+  "confirmation_fields": [],
+  "data": {
+    "structured": [
+      {
+        "record_id": "INPUT-STOOL001",
+        "occurred_at": "2026-09-01T08:01:00+08:00",
+        "bristol_type": 2,
+        "bristol_confirmed_by_patient": true,
+        "description": "香肠状但表面凹凸",
+        "attention_flag": true,
+        "blood_reported": false
+      }
+    ],
+    "route_to_safety": false,
+    "invalid_bristol_record_ids": [],
+    "missing_bristol_record_ids": []
+  },
+  "findings": [],
+  "usage": {},
+  "error": null,
+  "started_at": "2026-10-17T17:38:53+08:00",
+  "ended_at": "2026-10-17T17:38:53+08:00",
+  "contract_version": "1.0",
+  "_sample_note": "本样例由 mock 模式生成，用于接口结构联调；识图类任务明确未执行真实识别，不得把本样例内容当作模型效果证据。",
+  "_sample_task": "stool_record",
+  "_sample_source": "STOOL001",
+  "_mode": "mock"
+}
