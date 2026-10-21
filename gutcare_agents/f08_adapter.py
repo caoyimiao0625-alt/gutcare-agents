@@ -324,7 +324,8 @@ def _send_saved_callback(client: BackendClient, journal: F08Journal, task_id: st
 
 
 def process_task(client: BackendClient, orchestrator, dispatch: dict,
-                 *, journal: F08Journal, retry_delay: float = 0.25) -> dict | None:
+                 *, journal: F08Journal, retry_delay: float = 0.25,
+                 on_result=None) -> dict | None:
     """Run once or replay a saved callback after retry/restart without reanalysis."""
     task_id = validate_dispatch(dispatch)
     state = journal.accept(dispatch)
@@ -359,5 +360,12 @@ def process_task(client: BackendClient, orchestrator, dispatch: dict,
         LOG.error("F08 analysis failed task_id=%s error_type=%s", task_id, type(exc).__name__)
         journal.save_callback(task_id, "fail", {"error_code": "AGENT_ANALYSIS_FAILED"})
         return _send_saved_callback(client, journal, task_id, retry_delay=retry_delay)
+    if on_result is not None and result["status"] in {"succeeded", "partial"}:
+        try:
+            on_result(run, frozen, result["status"])
+        except Exception as exc:
+            # Advice is a separate callback; failure to prepare it must not
+            # turn an already-computed F08 result into an analysis failure.
+            LOG.error("F09 preparation failed task_id=%s error_type=%s", task_id, type(exc).__name__)
     journal.save_callback(task_id, "result", result)
     return _send_saved_callback(client, journal, task_id, retry_delay=retry_delay)

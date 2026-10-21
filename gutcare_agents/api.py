@@ -36,6 +36,8 @@ from .contract import (
 from .errors import AgentError, ErrorCode
 from .fixtures import Fixtures
 from .f08_adapter import BackendClient, F08ContractError, F08Journal, process_task, validate_dispatch
+from .f09_delivery import F09Outbox, deliver_f09
+from .image_adapter import ImageContractError, ImageJournal, process_image_task, validate_dispatch as validate_image_dispatch
 from .orchestrator import Orchestrator
 from .rules import RuleEngine, build_context, make_alert
 from .storage_bootstrap import get_store
@@ -54,6 +56,10 @@ class AppState:
         self.f08_active: set[str] = set()
         self.f08_lock = threading.Lock()
         self.f08_journal = F08Journal(settings.db_path)
+        self.f09_outbox = F09Outbox(settings.db_path)
+        self.image_journal = ImageJournal(settings.db_path)
+        self.image_active: set[str] = set()
+        self.image_lock = threading.Lock()
         self.fixtures = Fixtures(settings.fixture_root) if (settings.fixture_root / "inputs/test_catalog.json").is_file() else None
 
     def schedule_f08(self, dispatch: dict[str, Any]) -> None:
@@ -68,12 +74,37 @@ class AppState:
         try:
             client = BackendClient(self.settings.backend_base_url, self.settings.backend_service_token,
                                    timeout=self.settings.timeout_s)
-            process_task(client, self.orchestrator, payload, journal=self.f08_journal)
+            result = process_task(client, self.orchestrator, payload, journal=self.f08_journal,
+                                  on_result=self.f09_outbox.prepare)
+            if result and result.get("status") in {"succeeded", "partial"}:
+                try:
+                    deliver_f09(client, self.f09_outbox, task_id)
+                except Exception as exc:
+                    LOG.error("F09 delivery pending task_id=%s error_type=%s", task_id, type(exc).__name__)
         except Exception as exc:
             LOG.error("F08 processing paused task_id=%s error_type=%s", task_id, type(exc).__name__)
         finally:
             with self.f08_lock:
                 self.f08_active.discard(task_id)
+
+    def schedule_image(self, dispatch: dict[str, Any]) -> None:
+        request_id = validate_image_dispatch(dispatch)
+        with self.image_lock:
+            if request_id in self.image_active:
+                return
+            self.image_active.add(request_id)
+        self.pool.submit(self._run_image, dict(dispatch), request_id)
+
+    def _run_image(self, dispatch: dict[str, Any], request_id: str) -> None:
+        try:
+            client = BackendClient(self.settings.backend_base_url, self.settings.backend_service_token,
+                                   timeout=self.settings.timeout_s)
+            process_image_task(client, self.settings, dispatch, journal=self.image_journal)
+        except Exception as exc:
+            LOG.error("Image processing paused request_id=%s error_type=%s", request_id, type(exc).__name__)
+        finally:
+            with self.image_lock:
+                self.image_active.discard(request_id)
 
 
 def _problem(handler: "Handler", status: int, code: str, message: str, request_id: str, detail: Any = None) -> None:
@@ -209,6 +240,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._safety(payload, request_id)
             if path == "/internal/v1/tasks":
                 return self._f08_dispatch(payload, request_id)
+            if path == "/internal/v1/record-image-recognition/requests":
+                return self._image_dispatch(payload, request_id)
             if path == "/v1/tasks":
                 return self._submit(payload, request_id)
             if path == "/v1/analysis":
@@ -254,6 +287,24 @@ class Handler(BaseHTTPRequestHandler):
         if state not in {"completed", "stopped"}:
             self.state.schedule_f08(payload)
         return self._json(202, {"task_id": task_id, "accepted": True})
+
+    def _image_dispatch(self, payload: dict[str, Any], request_id: str) -> None:
+        if not self.state.settings.internal_token or not self.state.settings.backend_service_token:
+            return _problem(self, 503, "image_not_configured", "图片识别内部服务未配置", request_id)
+        key = self.headers.get("Idempotency-Key", "")
+        if not 8 <= len(key) <= 128:
+            return _problem(self, 400, "idempotency_key_required", "图片任务幂等键长度应为 8—128", request_id)
+        try:
+            image_request_id = validate_image_dispatch(payload)
+        except ImageContractError as exc:
+            return _problem(self, 400, "invalid_image_dispatch", str(exc), request_id)
+        try:
+            state = self.state.image_journal.accept(payload)
+        except ImageContractError as exc:
+            return _problem(self, 409, "image_task_conflict", str(exc), request_id)
+        if state not in {"completed", "stopped"}:
+            self.state.schedule_image(payload)
+        return self._json(202, {"request_id": image_request_id, "accepted": True})
 
     # ------------------------------------------------------------------
     def _submit(self, payload: dict[str, Any], request_id: str) -> None:
@@ -416,7 +467,22 @@ def make_server(settings: Settings) -> ThreadingHTTPServer:
     if settings.backend_base_url and settings.backend_service_token:
         for dispatch in state.f08_journal.pending_dispatches():
             state.schedule_f08(dispatch)
+        for task_id in state.f09_outbox.pending():
+            row = state.f08_journal.get(task_id)
+            if row and row["state"] == "completed":
+                state.pool.submit(_resume_f09, state, task_id)
+        for dispatch in state.image_journal.pending():
+            state.schedule_image(dispatch)
     return server
+
+
+def _resume_f09(state: AppState, task_id: str) -> None:
+    try:
+        client = BackendClient(state.settings.backend_base_url, state.settings.backend_service_token,
+                               timeout=state.settings.timeout_s)
+        deliver_f09(client, state.f09_outbox, task_id)
+    except Exception as exc:
+        LOG.error("F09 delivery pending task_id=%s error_type=%s", task_id, type(exc).__name__)
 
 
 def serve(settings: Settings) -> int:
