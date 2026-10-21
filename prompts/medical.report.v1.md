@@ -10,6 +10,7 @@
 5. 结论与建议应逐字保留原文，不要改写成新的医学建议。
 6. 不要把“异常标记”解释成疾病，也不要给出分级或严重程度判断。
 7. 中文输出。
+8. 多页 PDF 中，每个检查项、诊断候选和药物候选必须给出实际可见的页码 source_page（从 1 开始）；无法确定页码时填 null，不要猜测。
 
 只输出 JSON：
 {
@@ -18,17 +19,17 @@
   "institution": "原文机构名或 null",
   "exam_items": [
     {"name": "原文项目名", "value": "原文数值/描述", "unit": "原文单位或空字符串",
-     "reference_range": "原文参考范围或空字符串",
+     "reference_range": "原文参考范围或空字符串", "source_page": 1,
      "abnormal_flag": "high|low|normal|unknown", "raw_text": "该行原文片段"}
   ],
   "conclusion": "原文结论（逐字，可含 [遮挡]）",
   "suggestions": ["原文建议逐字"],
   "diagnosis_candidates": [
-    {"name": "疾病名", "status": "confirmed|suspected|history|mentioned", "evidence": "原文片段"}
+    {"name": "疾病名", "status": "confirmed|suspected|history|mentioned", "evidence": "原文片段", "source_page": 1}
   ],
   "medications": [
     {"name": "药名", "dose_text": "原文剂量文本或空字符串", "frequency": "原文或空字符串",
-     "course": "原文或空字符串", "raw_text": "原文片段"}
+     "course": "原文或空字符串", "raw_text": "原文片段", "source_page": 1}
   ],
   "redactions": [{"locator": "位置描述", "note": "遮挡/裁切/反光"}],
   "uncertainties": [{"code": "short_code", "message": "说明"}]

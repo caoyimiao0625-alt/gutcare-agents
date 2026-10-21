@@ -16,6 +16,41 @@ info:
 servers:
   - url: http://127.0.0.1:8100
 paths:
+  /internal/v1/medical-parse-requests:
+    post:
+      summary: 业务后端派发已领取的 F02 医疗文档解析任务
+      description: 后端独占 claim；本接口只接收任务标识，不接收报告内容。需配置双方服务令牌。
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, minLength: 8, maxLength: 128}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [request_id, schema_version]
+              properties:
+                request_id: {type: string, format: uuid}
+                schema_version: {type: string, enum: ["1.0"]}
+      responses:
+        "202":
+          description: Agent 已幂等接收任务
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [request_id, accepted]
+                properties:
+                  request_id: {type: string, format: uuid}
+                  accepted: {type: boolean, enum: [true]}
+        "400": {$ref: "#/components/responses/Problem"}
+        "401": {$ref: "#/components/responses/Problem"}
+        "409": {$ref: "#/components/responses/Problem"}
+        "503": {$ref: "#/components/responses/Problem"}
   /healthz:
     get:
       summary: 健康检查

@@ -35,6 +35,7 @@ from .contract import (
 )
 from .errors import AgentError, ErrorCode
 from .fixtures import Fixtures
+from .f02_adapter import F02ContractError, F02Journal, process_medical_task, validate_dispatch as validate_medical_dispatch
 from .f08_adapter import BackendClient, F08ContractError, F08Journal, process_task, validate_dispatch
 from .f09_delivery import F09Outbox, deliver_f09
 from .image_adapter import ImageContractError, ImageJournal, process_image_task, validate_dispatch as validate_image_dispatch
@@ -60,6 +61,9 @@ class AppState:
         self.image_journal = ImageJournal(settings.db_path)
         self.image_active: set[str] = set()
         self.image_lock = threading.Lock()
+        self.f02_journal = F02Journal(settings.db_path)
+        self.f02_active: set[str] = set()
+        self.f02_lock = threading.Lock()
         self.fixtures = Fixtures(settings.fixture_root) if (settings.fixture_root / "inputs/test_catalog.json").is_file() else None
 
     def schedule_f08(self, dispatch: dict[str, Any]) -> None:
@@ -105,6 +109,25 @@ class AppState:
         finally:
             with self.image_lock:
                 self.image_active.discard(request_id)
+
+    def schedule_f02(self, dispatch: dict[str, Any]) -> None:
+        request_id = validate_medical_dispatch(dispatch)
+        with self.f02_lock:
+            if request_id in self.f02_active:
+                return
+            self.f02_active.add(request_id)
+        self.pool.submit(self._run_f02, dict(dispatch), request_id)
+
+    def _run_f02(self, dispatch: dict[str, Any], request_id: str) -> None:
+        try:
+            client = BackendClient(self.settings.backend_base_url, self.settings.backend_service_token,
+                                   timeout=self.settings.timeout_s)
+            process_medical_task(client, self.settings, dispatch, journal=self.f02_journal)
+        except Exception as exc:
+            LOG.error("F02 processing paused request_id=%s error_type=%s", request_id, type(exc).__name__)
+        finally:
+            with self.f02_lock:
+                self.f02_active.discard(request_id)
 
 
 def _problem(handler: "Handler", status: int, code: str, message: str, request_id: str, detail: Any = None) -> None:
@@ -242,6 +265,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._f08_dispatch(payload, request_id)
             if path == "/internal/v1/record-image-recognition/requests":
                 return self._image_dispatch(payload, request_id)
+            if path == "/internal/v1/medical-parse-requests":
+                return self._f02_dispatch(payload, request_id)
             if path == "/v1/tasks":
                 return self._submit(payload, request_id)
             if path == "/v1/analysis":
@@ -305,6 +330,24 @@ class Handler(BaseHTTPRequestHandler):
         if state not in {"completed", "stopped"}:
             self.state.schedule_image(payload)
         return self._json(202, {"request_id": image_request_id, "accepted": True})
+
+    def _f02_dispatch(self, payload: dict[str, Any], request_id: str) -> None:
+        if not self.state.settings.internal_token or not self.state.settings.backend_service_token:
+            return _problem(self, 503, "f02_not_configured", "F02 内部服务未配置", request_id)
+        key = self.headers.get("Idempotency-Key", "")
+        if not 8 <= len(key) <= 128:
+            return _problem(self, 400, "idempotency_key_required", "F02 任务需要幂等键", request_id)
+        try:
+            medical_request_id = validate_medical_dispatch(payload)
+        except F02ContractError as exc:
+            return _problem(self, 400, "invalid_f02_dispatch", str(exc), request_id)
+        try:
+            state = self.state.f02_journal.accept(payload)
+        except F02ContractError as exc:
+            return _problem(self, 409, "f02_task_conflict", str(exc), request_id)
+        if state not in {"completed", "stopped"}:
+            self.state.schedule_f02(payload)
+        return self._json(202, {"request_id": medical_request_id, "accepted": True})
 
     # ------------------------------------------------------------------
     def _submit(self, payload: dict[str, Any], request_id: str) -> None:
@@ -473,6 +516,8 @@ def make_server(settings: Settings) -> ThreadingHTTPServer:
                 state.pool.submit(_resume_f09, state, task_id)
         for dispatch in state.image_journal.pending():
             state.schedule_image(dispatch)
+        for dispatch in state.f02_journal.pending():
+            state.schedule_f02(dispatch)
     return server
 
 
