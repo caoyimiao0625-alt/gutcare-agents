@@ -60,7 +60,7 @@ class StoolAgent(BaseAgent):
                 result.add_obs(
                     ObsKind.FACT,
                     f"排便记录（{record.get('occurred_at')}）记录为 Bristol {bristol} 型：{BRISTOL_DESCRIPTION[bristol]}；"
-                    "该分类为患者手动确认结果，非图像推断。",
+                    "该类型已写入并确认；若来自排便图片，则由排便识别智能体先生成候选，患者确认后系统写入，无需手动填写。",
                     record_ids=[record_id],
                     confidence="high",
                     value={"bristol_type": bristol},
