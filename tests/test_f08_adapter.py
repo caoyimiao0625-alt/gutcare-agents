@@ -328,6 +328,46 @@ class F08Tests(unittest.TestCase):
         self.assertEqual(result["observations"], ["inside"])
         self.assertEqual(result["evidence"][0]["source_id"], frozen["records"][0]["record_id"])
 
+    def test_patient_result_prefers_synthesis_over_record_by_record_notes(self):
+        frozen = frozen_input()
+        _, provenance = adapt_inputs(frozen, TASK_ID, frozen["analysis_type"])
+        stool_id = frozen["records"][2]["record_id"]
+        diet_id = frozen["records"][0]["record_id"]
+
+        class Run:
+            task_id = TASK_ID
+            status = "partial"
+            report = {
+                "narrative_summary": "",
+                "insufficient": ["记录天数不足"],
+                "observations": [
+                    {"agent": "stool", "statement": "单条排便记录的冗长描述", "source_record_ids": [stool_id]},
+                    {"agent": "trend", "kind": "derived_stat", "statement": "这段时间共有若干记录", "source_record_ids": [diet_id]},
+                    {"agent": "trend", "kind": "model_inference", "statement": "这段时间饮食与排便均有记录，尚不能判断关联", "source_record_ids": [diet_id, stool_id]},
+                ],
+            }
+
+        result = map_result(Run(), frozen, provenance)
+        self.assertEqual(result["observations"], ["这段时间饮食与排便均有记录，尚不能判断关联", "这段时间共有若干记录"])
+        self.assertNotIn("单条排便", result["summary"])
+        self.assertIn("已确认记录", result["summary"])
+        self.assertEqual({e["source_id"] for e in result["evidence"]}, {diet_id, stool_id})
+        self.assertEqual(result["status"], "partial")
+
+    def test_patient_result_without_trend_does_not_present_single_record_as_summary(self):
+        frozen = frozen_input()
+        _, provenance = adapt_inputs(frozen, TASK_ID, frozen["analysis_type"])
+
+        class Run:
+            task_id = TASK_ID
+            status = "partial"
+            report = {"observations": [{"agent": "stool", "statement": "Bristol 4 型",
+                                        "source_record_ids": [frozen["records"][2]["record_id"]]}]}
+
+        result = map_result(Run(), frozen, provenance)
+        self.assertIn("资料不足", result["summary"])
+        self.assertNotEqual(result["summary"], "Bristol 4 型")
+
     def test_claim_analyze_callback_query(self):
         FakeBusiness.status = "pending"
         FakeBusiness.result_payload = None

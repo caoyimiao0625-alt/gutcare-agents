@@ -209,7 +209,17 @@ def map_result(run, raw: dict, provenance: dict[str, dict]) -> dict:
     observations = []
     evidence = []
     seen = set()
-    for obs in report.get("observations") or []:
+    all_observations = report.get("observations") or []
+    # The patient task page is a synthesis, not a second per-record timeline.
+    # Domain observations remain in the internal report and record details.
+    trend_observations = [obs for obs in all_observations
+                          if isinstance(obs, dict) and obs.get("agent") == "trend"]
+    # Validated model synthesis leads; deterministic trend facts remain as backup.
+    trend_observations.sort(key=lambda obs: obs.get("kind") != "model_inference")
+    selected_observations = trend_observations if trend_observations else all_observations
+    for obs in selected_observations:
+        if not isinstance(obs, dict):
+            continue
         statement = obs.get("statement")
         if not isinstance(statement, str) or not statement.strip() or obs.get("needs_confirmation"):
             continue
@@ -221,7 +231,7 @@ def map_result(run, raw: dict, provenance: dict[str, dict]) -> dict:
             if source_id not in seen:
                 evidence.append(provenance[source_id])
                 seen.add(source_id)
-        if len(observations) >= 30:
+        if len(observations) >= 12:
             break
     missing = [str(item)[:120] for item in (raw.get("missing_data") or [])]
     if any(row.get("record_type") == "medical_fact_conflict" for row in raw.get("records") or []):
@@ -239,7 +249,14 @@ def map_result(run, raw: dict, provenance: dict[str, dict]) -> dict:
         status = "succeeded"
     summary = str(report.get("narrative_summary") or "").strip()
     if not summary:
-        summary = observations[0] if observations else "当前资料不足，暂无法形成可靠分析。"
+        if trend_observations and observations:
+            summary = "根据这段时间的已确认记录，" + observations[0]
+            if missing:
+                summary += "仍有资料缺口，以下观察仅反映已经记录的情况。"
+        elif observations:
+            summary = "已整理这段时间的健康记录，但目前资料不足以形成可靠的综合趋势。下方仅列出可核对的记录信息。"
+        else:
+            summary = "当前资料不足，暂无法形成可靠的综合分析。"
     callback_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"gutcare:f08:{run.task_id}:{raw['snapshot_hash']}:result"))
     return {"callback_id": callback_id, "status": status, "schema_version": "1.0",
             "summary": summary[:1200], "observations": observations,
